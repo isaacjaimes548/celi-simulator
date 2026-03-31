@@ -1,775 +1,771 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>CELI B2 Trainer</title>
-  <meta name="theme-color" content="#173b8a">
-  <meta name="description" content="Simulatore PWA originale ispirato al CELI B2 con simulazione completa e pratica per sezione.">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon-192.png">
-  <link rel="apple-touch-icon" href="./icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CELI B2 Trainer">
-  <style>
-    :root {
-      --bg1:#0f1f52;
-      --bg2:#5d2c96;
-      --card:#ffffff;
-      --card-2:#f7f9fe;
-      --ink:#17284a;
-      --muted:#66718a;
-      --line:#e4eaf5;
-      --accent:#5375ff;
-      --accent2:#8e5cff;
-      --good:#17b66d;
-      --bad:#e55361;
-      --warn:#f4b400;
-      --shadow:0 18px 50px rgba(17,24,39,.14);
-      --radius:26px;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
-    body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:14px}
-    .app{max-width:1080px;margin:0 auto;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);border-radius:30px;overflow:hidden;box-shadow:var(--shadow)}
-    .hero{padding:32px 22px 22px;background:linear-gradient(90deg,rgba(90,123,255,.96),rgba(145,88,255,.9));color:#fff;text-align:center}
-    .hero h1{margin:0;font-size:clamp(2rem,4vw,3.3rem)}
-    .hero p{margin:10px auto 0;max-width:760px;opacity:.95;font-size:1.02rem;line-height:1.5}
-    .hero-progress{margin-top:16px;height:10px;background:rgba(255,255,255,.22);border-radius:999px;overflow:hidden}
-    .hero-progress > div{height:100%;width:0;background:linear-gradient(90deg,#16d474,#74ff85);transition:width .28s ease}
-    .page{padding:24px;background:#f5f8ff;min-height:74vh}
-    .hidden{display:none!important}
-    .btn{border:none;border-radius:18px;padding:14px 18px;font-size:1rem;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--shadow)}
-    .btn.secondary{background:#fff;color:var(--accent);border:1px solid #d5dfff;box-shadow:none}
-    .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:none}
-    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
-    .landing{display:grid;gap:24px;align-items:start}
-    .landing-intro{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
-    .landing-intro h2{margin:0 0 10px;font-size:1.55rem}
-    .landing-intro p{margin:0;color:var(--muted);line-height:1.65}
-    .dual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-    .choice-card,.section-card,.panel,.result-card,.question-card,.writing-card,.speaking-card,.listening-card,.passage-card,.intro-card{
-      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
-    }
-    .choice-card,.section-card{padding:24px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease}
-    .choice-card:hover,.section-card:hover,.option:hover,.btn:hover{transform:translateY(-2px)}
-    .choice-card h3,.section-card h3{margin:0 0 10px;font-size:1.3rem}
-    .choice-card p,.section-card p,.mini,.sub{margin:0;color:var(--muted);line-height:1.55}
-    .choice-card .pill,.section-card .pill,.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#edf2ff;color:#355cc8;font-size:.8rem;font-weight:800;margin-bottom:12px}
-    .choice-card .features{margin-top:16px;display:grid;gap:8px;color:#37507b;font-weight:700;font-size:.95rem}
-    .top-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-    .section-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
-    .intro-card{padding:24px;margin-bottom:18px}
-    .intro-card h2{margin:0 0 8px;font-size:1.55rem}
-    .intro-card p{margin:0;color:var(--muted);line-height:1.6}
-    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-    .stat{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
-    .stat .label{font-size:.92rem;font-weight:700;color:var(--muted)}
-    .stat .value{margin-top:6px;font-size:1.85rem;font-weight:900}
-    .value.good{color:var(--good)} .value.bad{color:var(--bad)} .value.warn{color:var(--warn)}
-    .meter{height:10px;border-radius:999px;background:#e8eef8;overflow:hidden;margin-bottom:18px}
-    .meter > div{height:100%;width:0;background:linear-gradient(90deg,#1ad579,#74ff84);transition:width .3s ease}
-    .layout-2{display:grid;grid-template-columns:1.15fr .9fr;gap:18px}
-    .passage-card,.question-card,.writing-card,.speaking-card,.listening-card{padding:22px}
-    .question-title{margin:0 0 8px;font-size:1.32rem}
-    .question-subtitle{margin:0 0 16px;color:var(--muted)}
-    .passage{white-space:pre-wrap;line-height:1.72;color:#30405f}
-    .options{display:grid;gap:12px;margin-top:16px}
-    .option{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px 16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .14s ease}
-    .option.correct{background:#e8fff3;border-color:#85e3b1}
-    .option.wrong{background:#fff0f3;border-color:#ffa1ac}
-    .option.locked{pointer-events:none}
-    .prompt-box{background:var(--card-2);border:1px solid var(--line);border-radius:18px;padding:16px;line-height:1.65}
-    textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:18px;padding:16px;font:inherit;line-height:1.6;resize:vertical;margin-top:16px}
-    .checklist{display:grid;gap:10px;margin-top:16px}
-    .checkline{display:flex;gap:10px;align-items:flex-start;background:var(--card-2);border:1px solid var(--line);padding:12px 14px;border-radius:14px}
-    .listening-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-    .result-card{padding:24px}
-    .result-banner{text-align:center;padding:28px 18px;border-radius:22px;color:#fff;margin-bottom:20px}
-    .result-banner.completed{background:linear-gradient(90deg,#426bff,#875dff)}
-    .result-banner.perfect{background:linear-gradient(90deg,#10c973,#41d36b)}
-    .scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-    .score-box{border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;background:#fff}
-    .score-box .big{font-size:2rem;font-weight:900;margin-top:8px}
-    .feedback-note{margin-top:18px;color:var(--muted);line-height:1.6}
-    .modal{position:fixed;inset:0;background:rgba(12,19,40,.58);display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}
-    .modal-card{width:min(760px,100%);background:#fff;border-radius:28px;padding:24px;box-shadow:var(--shadow)}
-    .modal-card h2{margin:0 0 8px;font-size:clamp(1.85rem,4vw,2.85rem);text-align:center;color:#5a72ea}
-    .feedback-box{background:#f5f7fc;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px}
-    .footer-note{margin-top:18px;color:var(--muted);font-size:.93rem;line-height:1.6}
-    @media (max-width: 820px){
-      .dual-grid,.layout-2,.stat-row{grid-template-columns:1fr}
-      .page,.hero{padding:18px}
-      body{padding:8px}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CELI B2 Trainer V2.1</title>
+<meta name="theme-color" content="#173b8a">
+<meta name="description" content="Simulatore PWA originale ispirato al CELI B2 con pratica randomizzata e simulazione completa.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CELI B2 Trainer">
+<style>
+:root {
+  --bg1:#0f1f52; --bg2:#5d2c96; --card:#fff; --card2:#f7f9ff; --ink:#18284a; --muted:#647089;
+  --line:#e2e9f6; --accent:#5375ff; --accent2:#8d5cff; --good:#18b66d; --bad:#e65b69; --warn:#f0b400;
+  --shadow:0 18px 50px rgba(17,24,39,.14); --radius:26px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:12px}
+.app{max-width:1120px;margin:0 auto;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);border-radius:32px;overflow:hidden;box-shadow:var(--shadow)}
+.hero{padding:34px 22px 22px;background:linear-gradient(90deg,rgba(90,123,255,.95),rgba(145,88,255,.92));color:#fff;text-align:center}
+.hero h1{margin:0;font-size:clamp(2rem,4vw,3.4rem)}
+.hero p{margin:10px auto 0;max-width:800px;opacity:.95;line-height:1.55}
+.hero-progress{margin-top:16px;height:10px;background:rgba(255,255,255,.22);border-radius:999px;overflow:hidden}
+.hero-progress>div{height:100%;width:0;background:linear-gradient(90deg,#18d474,#74ff85);transition:width .25s ease}
+.page{padding:24px;background:#f5f8ff;min-height:74vh}
+.hidden{display:none!important}
+.btn{border:none;border-radius:18px;padding:14px 18px;font-size:1rem;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--shadow)}
+.btn.secondary{background:#fff;color:var(--accent);border:1px solid #d5dfff;box-shadow:none}
+.btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:none}
+.btn:hover,.card:hover,.option:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+.card,.panel,.question-card,.passage-card,.result-card,.picker-card,.writing-card,.oral-card,.audio-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.landing{display:grid;gap:22px}
+.intro{padding:24px}
+.intro h2{margin:0 0 8px;font-size:1.6rem}
+.intro p{margin:0;color:var(--muted);line-height:1.65}
+.dual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{padding:24px;cursor:pointer;transition:transform .14s ease}
+.card .pill,.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#edf2ff;color:#355cc8;font-size:.8rem;font-weight:800;margin-bottom:12px}
+.card h3{margin:0 0 10px;font-size:1.3rem}
+.card p,.sub,.mini{margin:0;color:var(--muted);line-height:1.55}
+.features{margin-top:16px;display:grid;gap:8px;color:#38517b;font-weight:700;font-size:.95rem}
+.top-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
+.label{font-size:.92rem;font-weight:700;color:var(--muted)}
+.value{margin-top:6px;font-size:1.85rem;font-weight:900}
+.value.good{color:var(--good)} .value.bad{color:var(--bad)} .value.warn{color:var(--warn)}
+.meter{height:10px;border-radius:999px;background:#e8eef8;overflow:hidden;margin-bottom:18px}
+.meter>div{height:100%;width:0;background:linear-gradient(90deg,#19d579,#74ff84);transition:width .3s ease}
+.layout-2{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.passage-card,.question-card,.picker-card,.writing-card,.oral-card,.audio-card{padding:22px}
+.passage{white-space:pre-wrap;line-height:1.72;color:#31405f}
+.question-title{margin:0 0 8px;font-size:1.32rem}
+.question-subtitle{margin:0 0 16px;color:var(--muted)}
+.options{display:grid;gap:12px}
+.option{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px 16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .14s ease}
+.option.correct{background:#e8fff3;border-color:#86e3b1}
+.option.wrong{background:#fff0f3;border-color:#ffa1ac}
+.option.locked{pointer-events:none}
+.small-meta{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
+.prompt-box{background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:16px;line-height:1.65}
+textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:18px;padding:16px;font:inherit;line-height:1.6;resize:vertical;margin-top:16px}
+.checklist{display:grid;gap:10px;margin-top:16px}
+.checkline{display:flex;gap:10px;align-items:flex-start;background:var(--card2);border:1px solid var(--line);padding:12px 14px;border-radius:14px}
+.picker-card label{display:block;font-weight:800;margin-bottom:10px}
+.picker-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.select{padding:12px 14px;border-radius:14px;border:1px solid var(--line);font:inherit;background:#fff}
+.range-note{margin-top:10px;color:var(--muted)}
+.section-header{margin-bottom:18px}
+.section-header h2{margin:0 0 8px}
+.section-header p{margin:0;color:var(--muted);line-height:1.6}
+.result-banner{text-align:center;padding:28px 18px;border-radius:22px;color:#fff;margin-bottom:20px}
+.result-banner.completed{background:linear-gradient(90deg,#426bff,#875dff)}
+.result-banner.perfect{background:linear-gradient(90deg,#10c973,#41d36b)}
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.score-box{border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;background:#fff}
+.score-box .big{font-size:2rem;font-weight:900;margin-top:8px}
+.feedback-note{margin-top:18px;color:var(--muted);line-height:1.6}
+.modal{position:fixed;inset:0;background:rgba(12,19,40,.58);display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}
+.modal-card{width:min(760px,100%);background:#fff;border-radius:28px;padding:24px;box-shadow:var(--shadow)}
+.modal-card h2{margin:0 0 8px;font-size:clamp(1.85rem,4vw,2.85rem);text-align:center;color:#5a72ea}
+.feedback-box{background:#f5f7fc;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px}
+.footer-note{margin-top:18px;color:var(--muted);font-size:.93rem;line-height:1.6}
+@media (max-width: 860px){
+  .dual-grid,.layout-2,.stat-row{grid-template-columns:1fr}
+  .page,.hero{padding:18px}
+  body{padding:8px}
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <section class="hero">
-      <h1>CELI B2 Trainer</h1>
-      <p>Allenati con un simulatore originale ispirato al CELI B2. Scegli una simulazione completa oppure pratica una sezione specifica tutte le volte che vuoi.</p>
-      <div class="hero-progress"><div id="hero-progress-bar"></div></div>
+<div class="app">
+  <section class="hero">
+    <h1>CELI B2 Trainer</h1>
+    <p>Allenati con un simulatore originale ispirato al CELI B2. Scegli una simulazione completa sempre casuale oppure una pratica randomizzata per sezione.</p>
+    <div class="hero-progress"><div id="hero-progress-bar"></div></div>
+  </section>
+
+  <main class="page">
+    <section id="landing-screen">
+      <div class="landing">
+        <article class="card intro">
+          <h2>V2.1 randomizzata</h2>
+          <p>La home resta pulita con due sole opzioni, ma dentro trovi banchi di contenuti più ampi. Ogni volta il simulatore può proporti combinazioni diverse, così l’allenamento è meno prevedibile e più utile.</p>
+        </article>
+        <div class="dual-grid">
+          <article class="card" data-action="open-full-intro">
+            <span class="pill">Modalità esame</span>
+            <h3>Simulazione completa</h3>
+            <p>Genera ogni volta un set diverso di letture, grammatica, ascolto, scrittura e orale. Nessun feedback immediato: il report arriva alla fine.</p>
+            <div class="features">
+              <div>• Estrazione casuale ad ogni tentativo</div>
+              <div>• Progressione continua per sezione</div>
+              <div>• Report finale con Completato o Perfetto</div>
+            </div>
+          </article>
+          <article class="card" data-action="open-practice">
+            <span class="pill">Modalità allenamento</span>
+            <h3>Pratica</h3>
+            <p>Scegli la sezione, indica quante attività vuoi fare oppure prova tutto. Il simulatore costruisce un set casuale e ti mostra feedback immediato nelle parti oggettive.</p>
+            <div class="features">
+              <div>• Quantità personalizzabile o tutto il banco</div>
+              <div>• Nuovo set casuale a ogni ingresso</div>
+              <div>• Ideale per ripetizione mirata</div>
+            </div>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <main class="page">
-      <section id="landing-screen">
-        <div class="landing">
-          <article class="landing-intro">
-            <h2>Una home più pulita, un allenamento più serio</h2>
-            <p>Questa V2 parte da due soli ingressi. Dentro trovi un flusso più ordinato, letture più dense, competenza linguistica più curata e un’esperienza più vicina a un vero simulatore che a un semplice quiz.</p>
-          </article>
-          <div class="dual-grid">
-            <article class="choice-card" data-action="open-full-intro">
-              <span class="pill">Modalità esame</span>
-              <h3>Simulazione completa</h3>
-              <p>Affronta le sezioni in ordine con timer, progressione continua e risultati finali per abilità.</p>
-              <div class="features">
-                <div>• Lettura, lingua, ascolto, scrittura e orale</div>
-                <div>• Timer attivo in ogni sezione</div>
-                <div>• Report finale strutturato</div>
-              </div>
-            </article>
-            <article class="choice-card" data-action="open-practice">
-              <span class="pill">Modalità allenamento</span>
-              <h3>Pratica</h3>
-              <p>Entra nella sezione che ti serve, ricevi feedback immediato e ripeti quante volte vuoi.</p>
-              <div class="features">
-                <div>• Accesso diretto per sezione</div>
-                <div>• Spiegazioni dopo ogni risposta</div>
-                <div>• Ideale per ripetizione mirata</div>
-              </div>
-            </article>
-          </div>
+    <section id="full-intro-screen" class="hidden">
+      <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
+      <article class="card intro">
+        <h2>Simulazione completa</h2>
+        <p>Questa modalità genera ogni volta un percorso casuale con Lettura, Competenza linguistica, Ascolto, Produzione scritta e Produzione orale. Niente feedback dopo ogni risposta: vedrai il report solo alla fine per allenare concentrazione e gestione del tempo.</p>
+        <div class="small-meta">
+          <span class="tag">2 letture casuali su 10</span>
+          <span class="tag">12 domande casuali su 50</span>
+          <span class="tag">6 ascolti casuali su 12</span>
+          <span class="tag">2 tracce scritte su 10</span>
+          <span class="tag">2 prompt orali su 5</span>
         </div>
-      </section>
-
-      <section id="full-intro-screen" class="hidden">
-        <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
-        <article class="intro-card">
-          <h2>Simulazione completa</h2>
-          <p>Il simulatore ti guiderà attraverso Lettura, Competenza linguistica, Ascolto, Produzione scritta e Produzione orale. In questa modalità non c’è feedback dopo ogni risposta: riceverai il report alla fine, proprio per allenare concentrazione e gestione del tempo.</p>
-          <div class="top-actions" style="margin-top:18px">
-            <button class="btn" data-action="start-full">Inizia simulazione</button>
-          </div>
-          <div class="footer-note">Nota: il contenuto è originale e ispirato al livello B2, non è una riproduzione ufficiale del CELI.</div>
-        </article>
-      </section>
-
-      <section id="practice-screen" class="hidden">
-        <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
-        <article class="intro-card">
-          <h2>Pratica per sezione</h2>
-          <p>Scegli dove allenarti. In questa modalità ricevi feedback immediato nelle parti oggettive e puoi ripetere una sezione specifica senza rifare tutto il percorso.</p>
-        </article>
-        <div class="section-grid" id="practice-grid"></div>
-      </section>
-
-      <section id="exam-screen" class="hidden">
-        <div class="stat-row">
-          <div class="stat"><div class="label">Sezione</div><div id="stat-section" class="value">—</div></div>
-          <div class="stat"><div class="label">Timer</div><div id="stat-timer" class="value warn">00:00</div></div>
-          <div class="stat"><div class="label">Progresso</div><div id="stat-progress" class="value">0/0</div></div>
-          <div class="stat"><div class="label">Punti</div><div id="stat-score" class="value good">0</div></div>
+        <div class="top-actions" style="margin-top:18px">
+          <button class="btn" data-action="start-full">Inizia simulazione</button>
         </div>
-        <div class="meter"><div id="section-progress-bar"></div></div>
-        <div class="top-actions">
-          <button class="btn secondary" id="back-context-btn">← Indietro</button>
-          <button class="btn hidden" id="next-btn">Avanti</button>
-        </div>
-        <div id="exam-content"></div>
-      </section>
+        <div class="footer-note">Nota: il contenuto è originale e ispirato al livello B2, non è una riproduzione ufficiale del CELI.</div>
+      </article>
+    </section>
 
-      <section id="results-screen" class="hidden">
-        <div class="top-actions">
-          <button class="btn secondary" data-action="go-home">← Home</button>
-          <button class="btn" data-action="restart-current">Ripeti</button>
+    <section id="practice-screen" class="hidden">
+      <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
+      <article class="card intro">
+        <h2>Pratica per sezione</h2>
+        <p>Scegli la sezione da allenare. Potrai indicare un numero preciso di attività oppure fare tutto il banco disponibile. Il simulatore prepara un set casuale diverso ogni volta.</p>
+      </article>
+      <div class="grid" id="practice-grid"></div>
+    </section>
+
+    <section id="picker-screen" class="hidden">
+      <div class="top-actions">
+        <button class="btn secondary" id="picker-back-btn">← Indietro</button>
+        <button class="btn secondary" data-action="go-home">Home</button>
+      </div>
+      <article class="picker-card">
+        <div class="section-header">
+          <span class="pill tag" id="picker-tag">Pratica</span>
+          <h2 id="picker-title">Seleziona la quantità</h2>
+          <p id="picker-description"></p>
         </div>
-        <article class="result-card">
-          <div id="result-banner" class="result-banner completed"></div>
-          <div class="scores" id="result-scores"></div>
-          <div id="result-notes" class="feedback-note"></div>
-        </article>
-      </section>
-    </main>
+        <label for="picker-count">Quante attività vuoi tentare?</label>
+        <div class="picker-row">
+          <select id="picker-count" class="select"></select>
+          <button class="btn" id="picker-start-btn">Genera set casuale</button>
+        </div>
+        <div id="picker-range-note" class="range-note"></div>
+      </article>
+    </section>
+
+    <section id="exam-screen" class="hidden">
+      <div class="stat-row">
+        <div class="stat"><div class="label">Sezione</div><div id="stat-section" class="value">—</div></div>
+        <div class="stat"><div class="label">Timer</div><div id="stat-timer" class="value warn">00:00</div></div>
+        <div class="stat"><div class="label">Progresso</div><div id="stat-progress" class="value">0/0</div></div>
+        <div class="stat"><div class="label">Punti</div><div id="stat-score" class="value good">0</div></div>
+      </div>
+      <div class="meter"><div id="section-progress-bar"></div></div>
+      <div class="top-actions">
+        <button class="btn secondary" id="back-context-btn">← Indietro</button>
+        <button class="btn hidden" id="next-btn">Avanti</button>
+      </div>
+      <div id="exam-content"></div>
+    </section>
+
+    <section id="results-screen" class="hidden">
+      <div class="top-actions">
+        <button class="btn secondary" data-action="go-home">← Home</button>
+        <button class="btn" data-action="restart-current">Ripeti</button>
+      </div>
+      <article class="result-card">
+        <div id="result-banner" class="result-banner completed"></div>
+        <div class="scores" id="result-scores"></div>
+        <div id="result-notes" class="feedback-note"></div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<div id="feedback-modal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card">
+    <h2 id="feedback-title">Feedback</h2>
+    <div class="feedback-box"><strong>Spiegazione</strong><div id="feedback-body" style="margin-top:8px"></div></div>
+    <div class="feedback-box"><strong>Consiglio B2</strong><div id="feedback-tip" style="margin-top:8px"></div></div>
+    <div class="top-actions" style="margin-top:18px"><button id="feedback-next" class="btn" style="width:100%">Next →</button></div>
   </div>
+</div>
 
-  <div id="feedback-modal" class="modal hidden" aria-hidden="true">
-    <div class="modal-card">
-      <h2 id="feedback-title">Feedback</h2>
-      <div class="feedback-box"><strong>Spiegazione</strong><div id="feedback-body" style="margin-top:8px"></div></div>
-      <div class="feedback-box"><strong>Consiglio B2</strong><div id="feedback-tip" style="margin-top:8px"></div></div>
-      <div class="top-actions" style="margin-top:18px"><button id="feedback-next" class="btn" style="width:100%">Next →</button></div>
-    </div>
-  </div>
+<script>
+const BANKS = {"readingBank": [{"title": "Nuovi spazi di coworking", "passage": "Negli ultimi anni, in molte città italiane, sono nati piccoli spazi di coworking di quartiere. A differenza degli uffici condivisi dei centri finanziari, questi ambienti cercano di attirare lavoratori autonomi, studenti e microimprenditori che preferiscono restare vicini a casa. Il vantaggio principale non è soltanto economico: chi li frequenta dice che lavorare in un luogo del genere aiuta a separare meglio la vita privata da quella professionale. Inoltre, la vicinanza facilita la creazione di reti locali tra grafici, traduttori, consulenti e artigiani. Secondo alcuni urbanisti, questi spazi possono avere anche un effetto sociale più ampio: un locale che rimane aperto tutto il giorno porta movimento in strade che altrimenti resterebbero vuote. Però non mancano le critiche: alcuni residenti sostengono che il quartiere rischi di cambiare troppo rapidamente e di perdere la propria identità originale.", "questions": [{"q": "Qual è l’idea principale del testo?", "options": ["I coworking di quartiere non servono a nulla.", "I coworking di quartiere offrono vantaggi pratici e sociali, ma suscitano anche critiche.", "Gli urbanisti vogliono chiudere i coworking.", "I residenti sono tutti entusiasti del cambiamento."], "answer": 1, "explanation": "Il testo presenta benefici lavorativi e sociali, ma ricorda anche le preoccupazioni di alcuni residenti.", "tip": "Nel B2 cerca la tesi centrale e verifica se il testo presenta anche un limite o una riserva."}, {"q": "Perché molte persone scelgono questi spazi?", "options": ["Perché devono usarli per legge.", "Perché offrono alloggio temporaneo.", "Perché permettono di restare vicini a casa e creare contatti utili.", "Perché sostituiscono completamente l’università."], "answer": 2, "explanation": "Nel testo si parla di vicinanza e di reti locali come due motivi decisivi.", "tip": "Quando una risposta unisce due motivi presenti nel testo, spesso è quella giusta."}, {"q": "Che cosa temono alcuni residenti?", "options": ["Che il quartiere perda la sua identità.", "Che non ci siano più studenti.", "Che i prezzi dei libri aumentino.", "Che i coworking chiudano troppo presto."], "answer": 0, "explanation": "L’ultima frase del testo parla proprio della perdita dell’identità del quartiere.", "tip": "Le critiche e le obiezioni compaiono spesso nel paragrafo finale."}]}, {"title": "La biblioteca di sera", "passage": "Molte biblioteche pubbliche hanno capito che non basta custodire libri. Per rimanere centrali nella vita di una città devono rispondere a bisogni nuovi, offrendo spazi di studio, attività culturali e servizi utili a fasce diverse della popolazione. In una cittadina emiliana, per esempio, la biblioteca comunale ha allungato l’orario serale, ha creato un doposcuola gratuito e ha organizzato incontri per chi sta cercando lavoro. Il numero di visitatori è cresciuto lentamente, ma in modo costante. La direttrice spiega che il punto decisivo non è riempire il calendario di eventi, bensì ascoltare il quartiere. Un laboratorio di scrittura può funzionare molto bene in una zona, mentre altrove serve soprattutto un luogo tranquillo per studiare o ricevere aiuto nella compilazione di documenti digitali.", "questions": [{"q": "Secondo la direttrice, qual è il punto decisivo?", "options": ["Aumentare il prezzo dei servizi.", "Ascoltare i bisogni del quartiere.", "Organizzare eventi ogni sera.", "Ridurre il numero dei libri."], "answer": 1, "explanation": "La direttrice dice chiaramente che bisogna ascoltare il quartiere, non soltanto riempire il calendario.", "tip": "Fai attenzione alle frasi introdotte da espressioni come 'il punto decisivo è'."}, {"q": "Quale risultato hanno avuto i cambiamenti?", "options": ["I visitatori sono diminuiti.", "I visitatori sono aumentati in modo costante.", "La biblioteca ha chiuso prima.", "Gli studenti hanno smesso di frequentarla."], "answer": 1, "explanation": "Il testo afferma che il numero di visitatori è cresciuto lentamente ma con continuità.", "tip": "Nel B2 parole come lentamente, gradualmente, costantemente cambiano molto il senso."}, {"q": "Che immagine della biblioteca emerge dal testo?", "options": ["Un luogo statico e chiuso.", "Un servizio che prova ad adattarsi a bisogni diversi.", "Un ufficio dedicato solo ai documenti digitali.", "Uno spazio utile solo agli studenti universitari."], "answer": 1, "explanation": "Il testo insiste sul fatto che la biblioteca moderna offre servizi diversi a persone diverse.", "tip": "La risposta corretta spesso riformula il messaggio generale con parole nuove."}]}, {"title": "Turismo lento in montagna", "passage": "Negli ultimi anni molte località di montagna hanno cercato di attirare visitatori non solo durante la stagione sciistica, ma lungo tutto l’anno. Per farlo hanno investito in sentieri curati, percorsi per biciclette elettriche, festival culturali e attività legate ai prodotti del territorio. Questo approccio viene spesso definito turismo lento, perché invita il viaggiatore a fermarsi più a lungo, a osservare l’ambiente e a conoscere le comunità locali. Gli operatori economici lo considerano un modo per diversificare le entrate e ridurre la dipendenza dalla neve, sempre più incerta a causa del cambiamento climatico. Alcuni abitanti, tuttavia, insistono sul fatto che il successo non va misurato solo dal numero di presenze, ma dalla qualità dell’impatto sul territorio.", "questions": [{"q": "Perché le località di montagna vogliono attrarre visitatori tutto l’anno?", "options": ["Per sostituire completamente lo sci.", "Per ridurre la dipendenza dalla stagione della neve.", "Per vietare gli eventi culturali.", "Per aumentare il traffico automobilistico."], "answer": 1, "explanation": "Il testo collega questa strategia all’incertezza della neve e alla necessità di diversificare le entrate.", "tip": "Cerca il rapporto causa-effetto nelle frasi con 'perché', 'a causa di', 'per farlo'."}, {"q": "Che cosa significa qui turismo lento?", "options": ["Un turismo con mezzi di trasporto lenti.", "Un turismo che invita a fermarsi e conoscere meglio il luogo.", "Un turismo riservato agli anziani.", "Un turismo limitato all’inverno."], "answer": 1, "explanation": "La definizione nel testo parla di fermarsi di più, osservare l’ambiente e conoscere le comunità locali.", "tip": "Quando il testo definisce un termine, la domanda lessicale tende a riformulare quella definizione."}, {"q": "Quale preoccupazione esprimono alcuni abitanti?", "options": ["Che i festival culturali durino troppo poco.", "Che il successo venga valutato solo in termini numerici.", "Che manchino piste da sci nuove.", "Che i visitatori non comprino prodotti locali."], "answer": 1, "explanation": "Gli abitanti ricordano che bisogna considerare anche la qualità dell’impatto sul territorio.", "tip": "Le opinioni contrastanti di gruppi diversi sono spesso un elemento centrale dei testi B2."}]}, {"title": "Corsi serali per adulti", "passage": "In molte città italiane stanno tornando popolari i corsi serali per adulti. Non si tratta solo di recuperare titoli di studio interrotti anni prima, ma anche di acquisire competenze nuove in una fase della vita in cui il lavoro cambia rapidamente. Alcuni frequentano corsi di lingua per migliorare la propria posizione professionale; altri scelgono informatica di base o amministrazione. I docenti osservano che la motivazione degli adulti è spesso molto forte, ma il problema principale resta il tempo: dopo una giornata di lavoro, mantenere costanza e concentrazione non è facile. Per questo molte scuole cercano di rendere i percorsi più flessibili, alternando lezioni in presenza e attività online.", "questions": [{"q": "Perché gli adulti seguono questi corsi?", "options": ["Solo per conoscere persone nuove.", "Solo per hobby artistici.", "Per completare studi o acquisire competenze utili.", "Per obbligo imposto dalle aziende."], "answer": 2, "explanation": "Il testo menziona sia il recupero degli studi sia l’acquisizione di nuove competenze.", "tip": "Attenzione a 'non solo... ma anche': segnala quasi sempre i due elementi della risposta corretta."}, {"q": "Qual è la difficoltà principale citata dai docenti?", "options": ["Il costo elevato dei libri.", "La mancanza di aule.", "La gestione del tempo e della concentrazione dopo il lavoro.", "L’assenza di insegnanti qualificati."], "answer": 2, "explanation": "I docenti sottolineano che, dopo una giornata di lavoro, è difficile restare costanti.", "tip": "Le frasi che contengono 'il problema principale' sono spesso direttamente riutilizzate nelle domande."}, {"q": "Come cercano di rispondere le scuole a questa difficoltà?", "options": ["Riducendo il numero degli studenti.", "Aumentando gli esami finali.", "Rendendo i percorsi più flessibili.", "Eliminando le lezioni online."], "answer": 2, "explanation": "Il testo dice che molte scuole alternano presenza e online per essere più flessibili.", "tip": "Nelle domande pratiche chiediti sempre: quale soluzione viene proposta al problema?"}]}, {"title": "Mercati agricoli cittadini", "passage": "I mercati agricoli cittadini sono diventati un appuntamento fisso del fine settimana in molte zone d’Italia. Per alcuni consumatori rappresentano l’occasione di acquistare prodotti locali e di stagione; per i piccoli produttori, invece, sono uno spazio dove raccontare direttamente il proprio lavoro senza intermediari. Questa relazione più immediata crea fiducia, ma richiede anche trasparenza: i clienti si aspettano informazioni precise sull’origine, sui metodi di coltivazione e sui prezzi. Alcuni esperti ricordano però che il mercato contadino non deve essere idealizzato. Non tutti i prodotti locali sono automaticamente sostenibili, e non tutti i consumatori possono permettersi prezzi più alti. Il valore di questi mercati, quindi, sta soprattutto nella consapevolezza che generano, non in una presunta superiorità assoluta.", "questions": [{"q": "Quale vantaggio hanno i piccoli produttori?", "options": ["Vendere senza intermediari e spiegare il proprio lavoro.", "Ricevere sovvenzioni automatiche.", "Evitare qualsiasi controllo.", "Lavorare solo con clienti stranieri."], "answer": 0, "explanation": "Il testo sottolinea proprio il contatto diretto e l’assenza di intermediari.", "tip": "Quando una domanda riguarda un gruppo preciso, rileggi le frasi dedicate solo a quel gruppo."}, {"q": "Che cosa si aspettano i clienti?", "options": ["Sconti obbligatori ogni settimana.", "Informazioni chiare su origine, metodi e prezzi.", "Prodotti importati da altri paesi.", "Consegne a domicilio gratuite."], "answer": 1, "explanation": "Nel testo si parla di trasparenza e di informazioni precise sui prodotti.", "tip": "La risposta corretta può riassumere un elenco di tre elementi in una sola frase."}, {"q": "Qual è la posizione finale degli esperti?", "options": ["I mercati contadini sono sempre migliori in assoluto.", "I mercati contadini non servono più.", "Il loro valore principale è la consapevolezza che producono.", "I prezzi non contano mai."], "answer": 2, "explanation": "Il testo conclude che il valore dei mercati sta soprattutto nella consapevolezza.", "tip": "La conclusione spesso contiene la valutazione più importante dell’autore."}]}, {"title": "Una città e il tram", "passage": "Dopo anni di discussioni, una media città italiana ha finalmente avviato il progetto per una nuova linea tranviaria. I sostenitori ritengono che il tram possa ridurre il traffico privato, migliorare la qualità dell’aria e rendere più affidabili gli spostamenti quotidiani. I commercianti di alcune strade interessate dai lavori, però, temono che i cantieri prolungati allontanino i clienti e penalizzino le attività. Gli amministratori rispondono che il disagio iniziale è inevitabile in quasi tutte le grandi trasformazioni urbane, ma che nel lungo periodo i vantaggi collettivi saranno superiori ai costi temporanei. Molti cittadini, intanto, si dichiarano favorevoli in linea di principio, purché il progetto rispetti i tempi promessi.", "questions": [{"q": "Che cosa pensano i sostenitori del tram?", "options": ["Che peggiorerà la qualità dell’aria.", "Che renderà gli spostamenti meno affidabili.", "Che porterà benefici al traffico e alla mobilità.", "Che i lavori dovrebbero durare più a lungo."], "answer": 2, "explanation": "I sostenitori collegano il tram a meno traffico, aria migliore e spostamenti più affidabili.", "tip": "Individua i gruppi in campo e associa a ciascuno la propria posizione."}, {"q": "Perché alcuni commercianti sono preoccupati?", "options": ["Perché i cantieri potrebbero ridurre la clientela.", "Perché il tram costerà poco.", "Perché i residenti vogliono più parcheggi.", "Perché il progetto è già concluso."], "answer": 0, "explanation": "Il testo dice che temono di perdere clienti durante i lavori.", "tip": "Le preoccupazioni pratiche dei gruppi locali compaiono spesso come dettagli molto concreti."}, {"q": "Quale condizione pongono molti cittadini?", "options": ["Che il progetto venga cancellato subito.", "Che il tram non passi in centro.", "Che i tempi promessi siano rispettati.", "Che i commercianti paghino i lavori."], "answer": 2, "explanation": "L’ultima frase esprime un consenso condizionato al rispetto dei tempi.", "tip": "Forme come 'purché', 'a condizione che', 'se' indicano una condizione importante."}]}, {"title": "Lavorare da remoto in campagna", "passage": "Con la diffusione del lavoro da remoto, alcune aree rurali hanno iniziato a presentarsi come alternative credibili alla vita nelle grandi città. Case più economiche, maggiore tranquillità e un contatto più diretto con la natura attirano soprattutto professionisti digitali e famiglie giovani. Tuttavia, chi si trasferisce scopre presto che il cambiamento non riguarda solo il paesaggio: servono connessioni affidabili, servizi essenziali e occasioni di socialità. Alcuni comuni hanno investito in fibra ottica e spazi condivisi per chi lavora online, sperando di contrastare lo spopolamento. Gli studiosi, però, avvertono che il ritorno alla campagna non può essere considerato una soluzione semplice per tutti, perché dipende dalle professioni, dalle preferenze personali e dalla qualità delle infrastrutture locali.", "questions": [{"q": "Che cosa attira le persone nelle aree rurali?", "options": ["Case più costose e meno natura.", "Maggiori occasioni di traffico.", "Case più economiche, tranquillità e natura.", "L’obbligo di lavorare in presenza."], "answer": 2, "explanation": "Il testo cita esplicitamente questi tre fattori come elementi di attrazione.", "tip": "Attenzione agli elenchi iniziali: spesso definiscono il quadro generale."}, {"q": "Che cosa scoprono molte persone dopo il trasferimento?", "options": ["Che il paesaggio non cambia mai.", "Che bastano gli alberi per lavorare bene.", "Che servono infrastrutture e servizi adeguati.", "Che il lavoro da remoto scompare."], "answer": 2, "explanation": "La seconda parte del testo sottolinea l’importanza di connessione, servizi e socialità.", "tip": "La parola 'tuttavia' segnala spesso un contrasto decisivo."}, {"q": "Qual è la posizione finale degli studiosi?", "options": ["Il ritorno alla campagna è perfetto per chiunque.", "Dipende da vari fattori e non è una soluzione semplice per tutti.", "La campagna non dovrebbe avere internet.", "Solo le famiglie possono trasferirsi."], "answer": 1, "explanation": "Gli studiosi invitano a evitare semplificazioni e ricordano che dipende da più elementi.", "tip": "Le conclusioni prudenti sono molto comuni nei testi argomentativi di livello B2."}]}, {"title": "Festival del cinema locale", "passage": "Un piccolo festival cinematografico nato quasi per gioco è riuscito, nel giro di pochi anni, a diventare un appuntamento atteso in tutta la provincia. Il suo punto di forza non è la presenza di star internazionali, ma la capacità di coinvolgere scuole, associazioni e sale indipendenti. Oltre alle proiezioni serali, il programma include laboratori, incontri con registi emergenti e attività rivolte agli adolescenti. Gli organizzatori spiegano che, in un’epoca di consumo rapido dei contenuti digitali, il festival vuole restituire al cinema una dimensione collettiva. Ciononostante, mantenere viva l’iniziativa richiede finanziamenti stabili e volontari preparati. Senza questa rete, il rischio è che l’entusiasmo iniziale non basti a garantire continuità.", "questions": [{"q": "Qual è il vero punto di forza del festival?", "options": ["La presenza di attori famosi.", "Il coinvolgimento del territorio.", "Il prezzo molto alto dei biglietti.", "La durata molto breve."], "answer": 1, "explanation": "Il testo chiarisce che la forza del festival è il coinvolgimento di scuole, associazioni e sale.", "tip": "Quando il testo dice 'non è..., ma...' la seconda parte è quasi sempre centrale."}, {"q": "Che cosa vogliono fare gli organizzatori?", "options": ["Ridurre il cinema a un consumo individuale.", "Restituire al cinema una dimensione collettiva.", "Eliminare i laboratori.", "Concentrarsi solo sugli adulti."], "answer": 1, "explanation": "Lo scopo dichiarato è proprio riportare il cinema a un’esperienza condivisa.", "tip": "Le frasi che esprimono un obiettivo mostrano spesso l’intenzione dell’autore o dei protagonisti."}, {"q": "Che cosa serve per mantenere viva l’iniziativa?", "options": ["Solo entusiasmo.", "Finanziamenti stabili e volontari preparati.", "Biglietti gratuiti per tutti.", "Una sola sala cinematografica."], "answer": 1, "explanation": "La continuità del festival dipende da risorse economiche e da una rete di persone competenti.", "tip": "Nei testi organizzativi, cerca sempre le condizioni necessarie alla sostenibilità."}]}, {"title": "Orti scolastici", "passage": "Sempre più scuole elementari e medie stanno introducendo piccoli orti didattici. L’obiettivo non è soltanto insegnare come crescono le piante, ma sviluppare pazienza, osservazione e senso di responsabilità. In molti casi gli orti diventano anche uno strumento per parlare di alimentazione, stagionalità e spreco. Alcuni insegnanti raccontano che gli studenti iniziano a guardare il cibo con occhi diversi quando vedono il tempo necessario per far crescere un pomodoro o un’insalata. Naturalmente ci sono anche difficoltà pratiche: servono spazi adatti, persone disponibili a seguire il progetto e continuità durante i mesi estivi. Nonostante questo, numerose scuole considerano l’orto un’esperienza formativa preziosa proprio perché unisce teoria e pratica.", "questions": [{"q": "Qual è uno degli obiettivi dell’orto didattico?", "options": ["Solo produrre grandi quantità di cibo.", "Sviluppare responsabilità e osservazione.", "Sostituire tutte le lezioni teoriche.", "Preparare gli studenti a lavorare in agricoltura."], "answer": 1, "explanation": "Il testo parla chiaramente di pazienza, osservazione e responsabilità.", "tip": "Le risposte corrette evitano spesso gli assoluti come solo, tutte, sempre."}, {"q": "Che effetto ha sugli studenti?", "options": ["Li rende meno interessati al cibo.", "Li aiuta a comprendere meglio il valore del cibo.", "Li convince a non mangiare verdure.", "Li obbliga a lavorare d’estate."], "answer": 1, "explanation": "Gli insegnanti osservano che vedendo il processo di crescita gli studenti cambiano prospettiva sul cibo.", "tip": "Presta attenzione alle conseguenze psicologiche o educative descritte nel testo."}, {"q": "Quale difficoltà pratica viene citata?", "options": ["L’assenza di libri scolastici.", "La mancanza di studenti.", "La necessità di continuità nei mesi estivi.", "L’impossibilità di parlare di alimentazione."], "answer": 2, "explanation": "Il testo elenca tra i problemi anche la continuità estiva del progetto.", "tip": "Le difficoltà pratiche sono spesso presentate in un elenco: rileggilo con calma."}]}, {"title": "Podcast e informazione", "passage": "Il podcast è diventato per molte persone un modo quotidiano di informarsi. Alcuni lo ascoltano mentre camminano, altri durante i viaggi o le faccende domestiche. Il successo del formato dipende in parte dalla sua flessibilità, ma anche dalla sensazione di ascoltare una voce familiare che spiega temi complessi con un ritmo più disteso rispetto a quello dei social network. Secondo diversi analisti, proprio questa lentezza relativa rappresenta un punto di forza: consente maggiore attenzione e spesso favorisce un rapporto di fiducia con chi parla. Tuttavia, come in ogni altro mezzo, resta necessario distinguere tra contenuti affidabili e prodotti poco rigorosi. La comodità dell’ascolto, infatti, non garantisce automaticamente la qualità delle informazioni.", "questions": [{"q": "Perché il podcast ha successo?", "options": ["Perché obbliga tutti a usare i social.", "Perché è flessibile e spesso offre spiegazioni più distese.", "Perché è sempre più breve di un messaggio.", "Perché sostituisce completamente la lettura."], "answer": 1, "explanation": "Il testo collega il successo sia alla flessibilità sia al ritmo più disteso delle spiegazioni.", "tip": "Quando il testo presenta due motivi complementari, cerca una risposta che li contenga entrambi."}, {"q": "Che cosa considerano importante gli analisti?", "options": ["La lentezza relativa come punto di forza.", "L’assenza totale di opinioni.", "La gratuità di tutti i podcast.", "La possibilità di vedere immagini."], "answer": 0, "explanation": "Gli analisti dicono che la lentezza relativa aiuta l’attenzione e la fiducia.", "tip": "Le valutazioni degli esperti di solito si trovano nella parte centrale del brano."}, {"q": "Quale avvertimento compare alla fine?", "options": ["I podcast devono essere ascoltati solo a casa.", "Ogni podcast è affidabile.", "Bisogna distinguere tra contenuti affidabili e poco rigorosi.", "La qualità dipende dalla musica iniziale."], "answer": 2, "explanation": "La conclusione invita a non confondere comodità dell’ascolto e qualità dell’informazione.", "tip": "Le frasi finali spesso funzionano come avvertenza o sintesi critica."}]}], "competenzaBank": [{"q": "Se avessi più tempo, ____ un corso di fotografia.", "options": ["seguo", "seguirei", "seguivo", "seguirò"], "answer": 1, "explanation": "Periodo ipotetico della possibilità: se avessi..., seguirei.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non credo che Marta ____ già arrivata.", "options": ["è", "sia", "sarà", "fosse"], "answer": 1, "explanation": "Dopo 'non credo che' si usa spesso il congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Ieri, mentre noi ____ cena, è mancata la luce.", "options": ["facevamo", "abbiamo fatto", "facemmo", "faremo"], "answer": 0, "explanation": "Azione in corso nel passato: imperfetto.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Ho comprato un libro ____ copertina è illustrata a mano.", "options": ["che", "cui", "la cui", "di cui"], "answer": 2, "explanation": "Con il nome successivo serve 'la cui'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Paolo è molto bravo ____ spiegare concetti difficili.", "options": ["a", "di", "da", "per"], "answer": 0, "explanation": "Si dice 'bravo a fare qualcosa'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Mi hanno detto che il museo rimarrà chiuso ____ lunedì.", "options": ["finché", "fino a", "per", "da"], "answer": 1, "explanation": "L’espressione corretta è 'fino a lunedì'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Se non ti senti bene, è meglio che tu ____ a casa.", "options": ["resti", "resta", "restavi", "resterai"], "answer": 0, "explanation": "Dopo 'è meglio che' si usa il congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Abbiamo scelto questo appartamento ____ è vicino alla stazione.", "options": ["perché", "sebbene", "mentre", "finché"], "answer": 0, "explanation": "Qui serve la causa: perché.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Quando ero piccolo, ____ spesso al mare con i nonni.", "options": ["andrò", "andavo", "sono andato", "andrei"], "answer": 1, "explanation": "Abitudine nel passato: imperfetto.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Mi interessa un lavoro che mi ____ di crescere professionalmente.", "options": ["permette", "permetta", "permetterà", "permise"], "answer": 1, "explanation": "Relativa con valore desiderativo: congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Nonostante ____ tardi, hanno continuato a lavorare.", "options": ["era", "fosse", "sia", "essere"], "answer": 1, "explanation": "Dopo 'nonostante' + frase completa: congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Vorrei sapere dove ____ la riunione di domani.", "options": ["si tiene", "si tenesse", "si terrà", "si tenga"], "answer": 0, "explanation": "Domanda indiretta su fatto reale/fissato: indicativo presente.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "È una decisione ____ bisogna riflettere con calma.", "options": ["su cui", "da cui", "per cui", "tra cui"], "answer": 0, "explanation": "Si riflette su qualcosa: 'su cui'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Appena ____ la notizia, ti chiamo.", "options": ["saprò", "sapevo", "sapessi", "so"], "answer": 0, "explanation": "Azione futura: appena saprò.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non ero abituato ____ così presto.", "options": ["alzarmi", "ad alzarmi", "mi alzo", "di alzarmi"], "answer": 1, "explanation": "Si dice 'essere abituato a'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Penso che loro non ____ capito il problema.", "options": ["hanno", "abbiano", "avranno", "avessero"], "answer": 1, "explanation": "Dopo 'penso che' si usa il congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Se me lo ____ prima, ti avrei aiutato.", "options": ["dicevi", "avessi detto", "hai detto", "dirai"], "answer": 1, "explanation": "Periodo ipotetico dell’irrealtà: se me lo avessi detto...", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Il film era interessante, ____ un po’ troppo lungo.", "options": ["quindi", "perciò", "anche se", "ma"], "answer": 3, "explanation": "Serve una semplice opposizione: ma.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Sono passati dieci anni da quando ci ____ l’ultima volta.", "options": ["vediamo", "vedevamo", "siamo visti", "vedremo"], "answer": 2, "explanation": "Con 'da quando' e fatto concluso: ci siamo visti.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Cerco qualcuno ____ sappia usare bene Excel.", "options": ["che", "cui", "chi", "di cui"], "answer": 0, "explanation": "La costruzione corretta è 'qualcuno che sappia'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Mi ha chiesto ____ potevo accompagnarlo in stazione.", "options": ["se", "che", "di", "quando"], "answer": 0, "explanation": "Con richiesta indiretta: se potevo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Questa è la ragione ____ ho cambiato idea.", "options": ["che", "per cui", "cui", "di cui"], "answer": 1, "explanation": "La formula standard è 'la ragione per cui'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Avrei preferito che voi ____ prima di decidere.", "options": ["chiamate", "chiamaste", "avete chiamato", "chiamerete"], "answer": 1, "explanation": "Dopo 'avrei preferito che' si usa il congiuntivo imperfetto.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non appena ____ il documento, mandamelo.", "options": ["finisci", "finirai", "avrai finito", "finito"], "answer": 2, "explanation": "Anteriorità futura: non appena avrai finito.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Il quartiere in cui vivo è più tranquillo ____ centro.", "options": ["del", "del al", "dal", "di"], "answer": 0, "explanation": "Comparativo: più tranquillo del centro.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Ci hanno informati ____ possibili ritardi del treno.", "options": ["di", "su", "per", "a"], "answer": 1, "explanation": "Si informa qualcuno su qualcosa.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Malgrado ____ poco, è riuscito a finire il progetto.", "options": ["ha dormito", "aver dormito", "avesse dormito", "dorme"], "answer": 1, "explanation": "Dopo 'malgrado' + infinito passato: aver dormito.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non so se domani ____ in ufficio o da casa.", "options": ["lavoro", "lavorassi", "lavorerei", "lavoravo"], "answer": 0, "explanation": "Interrogativa indiretta su scelta reale: indicativo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Vorremmo una casa ____ ci sia più luce.", "options": ["dove", "che", "cui", "di cui"], "answer": 0, "explanation": "Con riferimento a luogo: dove.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "È stato lui ____ proporre la soluzione migliore.", "options": ["di", "a", "che ha", "da"], "answer": 2, "explanation": "La struttura naturale è 'è stato lui che ha proposto'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Mi sembra strano che nessuno ____ ancora risposto.", "options": ["ha", "abbia", "avrà", "avesse"], "answer": 1, "explanation": "Dopo 'mi sembra strano che' serve il congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Ti telefonerò dopo che ____ con il direttore.", "options": ["parlo", "avrò parlato", "parlavo", "parlassi"], "answer": 1, "explanation": "Azione futura anteriore: dopo che avrò parlato.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Questo tema è meno semplice ____ sembri.", "options": ["di quanto", "che", "di quello", "come"], "answer": 0, "explanation": "Comparativa corretta: meno semplice di quanto sembri.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non abbiamo abbastanza dati ____ una decisione definitiva.", "options": ["prendere", "per prendere", "prendendo", "di prendere"], "answer": 1, "explanation": "Costruzione finale: per prendere.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Chiunque ____ a questo corso deve iscriversi online.", "options": ["partecipa", "partecipare", "partecipi", "ha partecipato"], "answer": 2, "explanation": "Dopo 'chiunque' in valore indefinito: congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "L’hotel da noi scelto si trova in una zona molto ____.", "options": ["comodo", "comodamente", "comoda", "comodità"], "answer": 2, "explanation": "Accordo con 'zona': femminile.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non pensavo che il viaggio ____ così stancante.", "options": ["era", "fosse", "sia", "sarà"], "answer": 1, "explanation": "Dopo 'non pensavo che' si usa il congiuntivo imperfetto.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Ti presto il libro a condizione che me lo ____ entro venerdì.", "options": ["restituisci", "restituissi", "restituirai", "restituisca"], "answer": 0, "explanation": "Con soggetto 'tu' e uso colloquiale standard: che me lo restituisci entro venerdì; in registro più formale anche 'restituisca'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Apprezzo molto le persone ____ mantengono la parola data.", "options": ["cui", "che", "di cui", "a cui"], "answer": 1, "explanation": "La relativa semplice è 'persone che mantengono'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Il professore ci ha consigliato di ____ un riassunto prima dell’esame.", "options": ["scriviamo", "scrivere", "scritto", "scriveremo"], "answer": 1, "explanation": "Dopo 'consigliare di' serve l’infinito.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Benché non ____ esperienza, ha imparato in fretta.", "options": ["aveva", "avesse", "ha", "avrò"], "answer": 1, "explanation": "Benché richiede il congiuntivo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Mi piacerebbe visitare una città ____ si possa andare ovunque a piedi.", "options": ["che", "in cui", "da cui", "per cui"], "answer": 1, "explanation": "Per il luogo con relativa: in cui.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Luca si è trasferito all’estero ____ cercare nuove opportunità.", "options": ["per", "a", "da", "di"], "answer": 0, "explanation": "Finale: per cercare.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Non riesco a capire il motivo ____ hanno rifiutato la proposta.", "options": ["che", "per cui", "cui", "di cui"], "answer": 1, "explanation": "Si dice 'il motivo per cui'.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Dopo ____ le email, inizierò il report.", "options": ["controllo", "aver controllato", "controllare", "controllato"], "answer": 1, "explanation": "Con 'dopo' + infinito passato: aver controllato.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "È importante che noi ____ con attenzione tutte le istruzioni.", "options": ["leggiamo", "leggeremo", "leggevamo", "abbiamo letto"], "answer": 0, "explanation": "Dopo 'è importante che' si usa il congiuntivo presente.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Se fossi in te, non ____ quella possibilità.", "options": ["perdo", "perderei", "perdevo", "ho perso"], "answer": 1, "explanation": "Consiglio ipotetico: condizionale.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Il romanzo, ____ ho finito ieri, mi è piaciuto molto.", "options": ["che", "cui", "di cui", "a cui"], "answer": 0, "explanation": "Pronome relativo diretto: che.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Mentre aspettavo il bus, ____ un vecchio amico.", "options": ["incontro", "ho incontrato", "incontravo", "incontrerò"], "answer": 1, "explanation": "Azione puntuale avvenuta nel passato: passato prossimo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}, {"q": "Per quanto ____, non siamo riusciti a convincerlo.", "options": ["provavamo", "abbiamo provato", "provassimo", "proveremo"], "answer": 2, "explanation": "Espressione concessiva: per quanto provassimo.", "tip": "Controlla il valore della struttura: ipotesi, concessione, finalità o tempo."}], "listeningBank": [{"title": "Messaggio della biblioteca", "script": "Buongiorno, vi ricordiamo che giovedì la biblioteca comunale chiuderà alle diciotto invece che alle venti per un intervento tecnico. Le attività del gruppo di lettura si svolgeranno comunque nella sala al primo piano. Chi deve restituire libri può usare il box esterno anche dopo l’orario di chiusura.", "q": "Che cosa cambia giovedì?", "options": ["Il gruppo di lettura viene cancellato.", "La biblioteca chiude prima del solito.", "Non sarà possibile restituire libri.", "La sala al primo piano resterà chiusa."], "answer": 1, "explanation": "Il messaggio annuncia solo una chiusura anticipata della biblioteca.", "tip": "Nel listening B2 distingui bene tra cambiamento principale e dettagli secondari."}, {"title": "Telefonata al dentista", "script": "Salve, la contattiamo dallo studio dentistico per spostare l’appuntamento di domani. Il dottore avrà un imprevisto e potrà riceverla venerdì alle undici oppure lunedì alle nove e trenta. Se nessuno dei due orari va bene, la preghiamo di richiamarci entro oggi pomeriggio.", "q": "Perché il paziente deve essere ricontattato?", "options": ["Per confermare la visita nello stesso orario.", "Perché l’appuntamento deve essere spostato.", "Perché il medico è in ferie per un mese.", "Per pagare in anticipo la visita."], "answer": 1, "explanation": "La telefonata serve a riprogrammare l’appuntamento.", "tip": "Individua subito lo scopo della chiamata."}, {"title": "Annuncio in stazione", "script": "Attenzione, il regionale veloce per Bologna delle diciassette e dieci partirà dal binario quattro invece che dal binario due per esigenze di circolazione. Invitiamo i passeggeri già presenti sul marciapiede due a spostarsi con calma seguendo la segnaletica.", "q": "Che informazione viene data ai passeggeri?", "options": ["Il treno è stato cancellato.", "Il treno parte in ritardo di due ore.", "Il treno parte da un binario diverso.", "Il treno non ferma più a Bologna."], "answer": 2, "explanation": "L’annuncio comunica un cambio di binario.", "tip": "Negli annunci pubblici, il dato chiave è spesso una modifica pratica."}, {"title": "Nota vocale di un collega", "script": "Ciao, ho rivisto la presentazione e secondo me possiamo renderla più chiara. Nella seconda parte ci sono troppi numeri tutti insieme. Ti propongo di lasciare solo i dati principali e di spostare il resto in un allegato. Così domani, durante la riunione, riusciremo a parlare con più calma dei risultati davvero importanti.", "q": "Che cosa suggerisce il collega?", "options": ["Aggiungere altri numeri nella seconda parte.", "Spostare alcuni dati in un allegato.", "Cancellare completamente la presentazione.", "Rimandare la riunione a domani sera."], "answer": 1, "explanation": "Il collega propone di lasciare solo i dati principali e mettere il resto in allegato.", "tip": "Ascolta bene i verbi che esprimono proposta: propongo, suggerisco, conviene."}, {"title": "Avviso del museo", "script": "Il museo civico informa i visitatori che domenica prossima l’ingresso sarà gratuito dalle dieci alle tredici nell’ambito di una giornata dedicata alle famiglie. Le visite guidate partiranno ogni quaranta minuti e sarà necessario prenotare online solo per i gruppi superiori a dieci persone.", "q": "Quando sarà gratuito l’ingresso?", "options": ["Tutta la domenica fino a sera.", "Dalle dieci alle tredici di domenica prossima.", "Ogni domenica del mese.", "Solo per i gruppi oltre dieci persone."], "answer": 1, "explanation": "La gratuità è limitata alla fascia oraria indicata.", "tip": "Nel listening, orari e condizioni devono essere colti con precisione."}, {"title": "Messaggio del proprietario", "script": "Buonasera, le scrivo per dirle che l’idraulico passerà martedì mattina tra le otto e le dieci per controllare la perdita in cucina. Non è necessario che resti in casa per tutto il tempo, ma sarebbe utile che qualcuno fosse presente almeno all’inizio per mostrargli il problema.", "q": "Che cosa viene richiesto all’inquilino?", "options": ["Di restare in casa tutto il giorno.", "Di essere presente almeno all’inizio della visita.", "Di chiamare un altro idraulico.", "Di pagare subito la riparazione."], "answer": 1, "explanation": "Serve qualcuno presente all’inizio per spiegare il problema.", "tip": "Distingui tra obbligo totale e richiesta parziale."}, {"title": "Intervista radiofonica", "script": "Secondo la direttrice del festival, quest’anno non volevano semplicemente aumentare il numero di eventi, ma renderli più accessibili. Per questo hanno anticipato alcuni spettacoli al tardo pomeriggio e introdotto biglietti ridotti per gli under venticinque. L’obiettivo, dice, è costruire un pubblico futuro, non solo riempire le sale per una settimana.", "q": "Qual è l’obiettivo dichiarato?", "options": ["Aumentare i prezzi dei biglietti.", "Costruire un pubblico futuro.", "Eliminare gli spettacoli serali.", "Ridurre il numero di eventi."], "answer": 1, "explanation": "L’intervistata spiega che il vero obiettivo è formare un pubblico futuro.", "tip": "Nelle interviste, la finalità compare spesso dopo espressioni come 'l’obiettivo è'."}, {"title": "Segreteria universitaria", "script": "Ricordiamo agli studenti che la scadenza per presentare il piano di studi è stata prorogata al dodici aprile. Chi aveva già completato la procedura non deve fare nulla. Gli altri possono modificare le scelte fino a mezzanotte del giorno indicato, esclusivamente tramite il portale online.", "q": "Che cosa è stato prorogato?", "options": ["L’inizio delle lezioni.", "La scadenza del piano di studi.", "L’apertura del portale online.", "La consegna dei diplomi."], "answer": 1, "explanation": "La proroga riguarda il termine per presentare il piano di studi.", "tip": "Parole-chiave come proroga, scadenza, termine sono spesso centrali."}, {"title": "Messaggio in palestra", "script": "A causa di un guasto all’impianto di climatizzazione, la sala pesi resterà chiusa oggi pomeriggio. I corsi collettivi previsti dopo le diciotto si terranno regolarmente nelle sale laterali. Gli abbonati interessati potranno recuperare l’accesso perso entro la fine del mese.", "q": "Che cosa resterà chiuso?", "options": ["Tutta la palestra per una settimana.", "Solo la sala pesi oggi pomeriggio.", "Le sale laterali dopo le diciotto.", "L’ingresso principale fino a domani."], "answer": 1, "explanation": "La chiusura riguarda soltanto la sala pesi nel pomeriggio.", "tip": "Non estendere il problema a tutto il contesto se il messaggio è specifico."}, {"title": "Audio guida turistica", "script": "Davanti a voi vedete la facciata principale del palazzo, modificata nell’Ottocento ma costruita su fondamenta molto più antiche. Se osservate bene le finestre del piano terra, noterete una differenza di stile rispetto a quelle superiori: è il segno dei vari interventi che l’edificio ha subito nei secoli.", "q": "Che cosa sottolinea l’audio guida?", "options": ["Che il palazzo è stato costruito in un solo periodo.", "Che l’edificio mostra tracce di epoche diverse.", "Che le finestre superiori sono false.", "Che il piano terra è stato demolito."], "answer": 1, "explanation": "La guida mette in evidenza differenze stilistiche dovute a interventi di periodi diversi.", "tip": "Nei testi descrittivi, il dettaglio osservato serve a sostenere l’idea generale."}, {"title": "Messaggio dell’amministratore", "script": "Buongiorno a tutti, da lunedì prossimo inizieranno i lavori di tinteggiatura delle scale interne. Per motivi di sicurezza vi chiediamo di non lasciare biciclette, passeggini o scatoloni sui pianerottoli. I lavori dureranno circa cinque giorni, salvo ritardi dovuti al maltempo.", "q": "Che cosa chiedono ai residenti?", "options": ["Di non usare le scale per cinque giorni.", "Di spostare gli oggetti lasciati sui pianerottoli.", "Di restare a casa in caso di pioggia.", "Di ridipingere personalmente le scale."], "answer": 1, "explanation": "Per sicurezza bisogna liberare i pianerottoli da oggetti ingombranti.", "tip": "Le richieste pratiche negli avvisi condominiali sono spesso molto concrete."}, {"title": "Chiamata dell’agenzia viaggi", "script": "La informiamo che il volo per Lisbona di sabato mattina è stato anticipato di cinquanta minuti. Per evitare problemi al check-in, le consigliamo di arrivare in aeroporto con un po’ di anticipo rispetto a quanto previsto inizialmente. Il resto dell’itinerario rimane invariato.", "q": "Che cosa cambia nel viaggio?", "options": ["Viene modificato tutto l’itinerario.", "Il volo di sabato mattina parte prima.", "Il viaggio viene annullato.", "Il check-in non sarà più necessario."], "answer": 1, "explanation": "L’unico cambiamento riguarda l’orario anticipato del volo.", "tip": "Attenzione a frasi come 'il resto rimane invariato': delimitano il cambiamento reale."}], "writingPrompts": ["Scrivi un’email formale a un centro linguistico per chiedere informazioni su un corso intensivo d’italiano: orari, costo, livello richiesto e modalità di iscrizione.", "Un amico vuole trasferirsi nella tua città per lavoro. Scrivigli un messaggio dettagliato con consigli pratici su quartieri, trasporti e costo della vita.", "Il tuo comune vuole aprire una nuova area pedonale in centro. Scrivi un breve testo argomentativo esprimendo la tua opinione, con vantaggi e possibili problemi.", "Scrivi una recensione di un libro, film o serie che hai apprezzato recentemente, spiegando perché la consiglieresti a un pubblico adulto.", "Redigi un post per il blog di una scuola in cui racconti un’attività culturale o didattica particolarmente riuscita.", "Scrivi una lettera al direttore di una palestra per proporre miglioramenti nei servizi offerti agli iscritti.", "Un’associazione cerca volontari per un festival locale. Scrivi un testo in cui spieghi perché partecipare potrebbe essere utile e interessante.", "Racconta un’esperienza in cui hai dovuto adattarti rapidamente a una situazione nuova, spiegando che cosa hai imparato.", "Scrivi un articolo breve sul valore del lavoro da remoto, evidenziando opportunità e limiti per la vita quotidiana.", "Prepari il giornalino del tuo corso. Scrivi un testo in cui proponi tre modi concreti per migliorare l’apprendimento di una lingua straniera."], "oralPrompts": ["Presentati e racconta come organizzi una settimana di studio efficace quando hai poco tempo.", "Esprimi la tua opinione sui vantaggi e gli svantaggi del vivere in una grande città rispetto a un piccolo centro.", "Descrivi un progetto o obiettivo personale importante e spiega quali passi concreti servono per raggiungerlo.", "Parla di un evento culturale, sociale o scolastico che ritieni utile per una comunità locale e spiega perché.", "Racconta una situazione in cui hai dovuto risolvere un problema comunicativo con calma e chiarezza."]};
 
-  <script>
-    const app = {
-      sections: {
-        reading: {
-          key: 'reading',
-          title: 'Comprensione della lettura',
-          short: 'Lettura',
-          time: 16 * 60,
-          description: 'Due testi con domande di comprensione globale, dettaglio e inferenza.',
-          type: 'reading',
-          blocks: [
-            {
-              title: 'Il coworking di quartiere',
-              passage: `Negli ultimi anni, in molte città italiane, sono nati piccoli spazi di coworking di quartiere. A differenza degli uffici condivisi nati nei centri finanziari, questi ambienti cercano di attirare lavoratori autonomi, studenti e piccoli imprenditori che preferiscono restare vicino a casa.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+  });
+}
 
-Il vantaggio principale non è soltanto economico. Chi li frequenta racconta che lavorare in un luogo del genere aiuta a separare meglio la vita privata da quella professionale. Inoltre, la vicinanza facilita la creazione di reti locali: grafici, traduttori, consulenti e artigiani finiscono per conoscersi e collaborare.
+const CONFIG = {
+  reading: {title:'Comprensione della lettura', short:'Lettura', type:'reading', max: BANKS.readingBank.length, practiceDefault:1, fullCount:2, timePerItem:180, objective:true},
+  grammar: {title:'Competenza linguistica', short:'Lingua', type:'grammar', max: BANKS.competenzaBank.length, practiceDefault:10, fullCount:12, timePerItem:45, objective:true},
+  listening: {title:'Comprensione dell’ascolto', short:'Ascolto', type:'listening', max: BANKS.listeningBank.length, practiceDefault:4, fullCount:6, timePerItem:70, objective:true},
+  writing: {title:'Produzione scritta', short:'Scritta', type:'writing', max: BANKS.writingPrompts.length, practiceDefault:1, fullCount:2, timePerItem:600, objective:false},
+  speaking: {title:'Produzione orale', short:'Orale', type:'speaking', max: BANKS.oralPrompts.length, practiceDefault:1, fullCount:2, timePerItem:240, objective:false}
+};
 
-Secondo alcuni urbanisti, questi spazi possono avere anche un effetto sociale più ampio. Quando un locale rimane aperto tutto il giorno, porta movimento in strade che altrimenti resterebbero vuote. Però non mancano le critiche: alcuni residenti sostengono che il quartiere rischi di cambiare troppo rapidamente e di perdere la propria identità originale.`,
-              questions: [
-                { q:'Qual è l’idea centrale del testo?', options:['I coworking di quartiere sono identici agli uffici tradizionali.','I coworking di quartiere offrono vantaggi professionali e sociali, ma sollevano anche qualche critica.','Gli urbanisti considerano inutili gli spazi condivisi.','I residenti sono tutti favorevoli ai cambiamenti del quartiere.'], answer:1, explanation:'Il testo presenta benefici pratici e sociali dei coworking, ma conclude ricordando anche le perplessità di alcuni residenti.', tip:'Nel B2 cerca l’equilibrio del testo: tesi principale + eventuali riserve finali.' },
-                { q:'Perché molte persone scelgono questi spazi?', options:['Perché costano sempre meno del lavoro da casa.','Perché permettono di restare vicini a casa e creare contatti utili.','Perché offrono alloggio temporaneo.','Perché sono obbligatori per i liberi professionisti.'], answer:1, explanation:'Il testo cita sia la vicinanza sia la possibilità di creare reti locali e collaborazioni.', tip:'Quando un testo elenca due motivi consecutivi, spesso entrambi rientrano nella risposta corretta.' },
-                { q:'Che cosa temono alcuni residenti?', options:['Che i coworking chiudano troppo presto.','Che il quartiere perda la sua identità originale.','Che diminuiscano i servizi pubblici.','Che aumenti il traffico turistico internazionale.'], answer:1, explanation:'Nell’ultima frase si dice che il quartiere potrebbe cambiare troppo rapidamente e perdere la propria identità.', tip:'Le domande sulle critiche si trovano spesso nel paragrafo conclusivo.' }
-              ]
-            },
-            {
-              title: 'Una biblioteca che si trasforma',
-              passage: `Molte biblioteche pubbliche hanno capito che non basta custodire libri. Per rimanere centrali nella vita di una città devono rispondere a bisogni nuovi, offrendo spazi di studio, attività culturali e servizi utili a fasce diverse della popolazione.
+const state = {
+  screen:'landing',
+  mode:null,
+  sectionKey:null,
+  sectionsQueue:[],
+  sectionIndex:0,
+  sectionItems:[],
+  itemIndex:0,
+  score:0,
+  totalObjective:0,
+  answeredObjective:0,
+  correctObjective:0,
+  timer:0,
+  timerId:null,
+  pendingAdvance:null,
+  results: {},
+  currentPickerKey:null,
+  lastRun:null,
+  audioUtterance:null
+};
 
-In una cittadina emiliana, per esempio, la biblioteca comunale ha allungato l’orario serale, ha creato un doposcuola gratuito e ha organizzato incontri dedicati a chi sta cercando lavoro. Il numero di visitatori è cresciuto lentamente, ma in modo costante.
+const el = {
+  heroBar: document.getElementById('hero-progress-bar'),
+  practiceGrid: document.getElementById('practice-grid'),
+  examContent: document.getElementById('exam-content'),
+  nextBtn: document.getElementById('next-btn'),
+  backBtn: document.getElementById('back-context-btn'),
+  statSection: document.getElementById('stat-section'),
+  statTimer: document.getElementById('stat-timer'),
+  statProgress: document.getElementById('stat-progress'),
+  statScore: document.getElementById('stat-score'),
+  sectionBar: document.getElementById('section-progress-bar'),
+  resultBanner: document.getElementById('result-banner'),
+  resultScores: document.getElementById('result-scores'),
+  resultNotes: document.getElementById('result-notes'),
+  modal: document.getElementById('feedback-modal'),
+  modalTitle: document.getElementById('feedback-title'),
+  modalBody: document.getElementById('feedback-body'),
+  modalTip: document.getElementById('feedback-tip'),
+  modalNext: document.getElementById('feedback-next'),
+  pickerTitle: document.getElementById('picker-title'),
+  pickerDescription: document.getElementById('picker-description'),
+  pickerCount: document.getElementById('picker-count'),
+  pickerStart: document.getElementById('picker-start-btn'),
+  pickerNote: document.getElementById('picker-range-note'),
+  pickerBack: document.getElementById('picker-back-btn'),
+  pickerTag: document.getElementById('picker-tag')
+};
 
-La direttrice spiega che il punto decisivo non è riempire il calendario di eventi, bensì ascoltare il quartiere. Un laboratorio di scrittura può funzionare molto bene in una zona, mentre altrove serve soprattutto un luogo tranquillo per studiare o ricevere aiuto nella compilazione di documenti digitali.
+const screens = {
+  landing: document.getElementById('landing-screen'),
+  fullIntro: document.getElementById('full-intro-screen'),
+  practice: document.getElementById('practice-screen'),
+  picker: document.getElementById('picker-screen'),
+  exam: document.getElementById('exam-screen'),
+  results: document.getElementById('results-screen')
+};
 
-Naturalmente tutto questo richiede investimenti, personale competente e continuità. Tuttavia, secondo molti osservatori, la biblioteca moderna resta uno dei pochi luoghi realmente aperti a tutti.`,
-              questions: [
-                { q:'Secondo la direttrice, che cosa conta davvero?', options:['Aumentare il numero degli eventi senza eccezioni.','Imitare i servizi di tutte le altre biblioteche.','Capire quali bisogni concreti ha il quartiere.','Ridurre le attività per spendere meno.'], answer:2, explanation:'La direttrice dice chiaramente che il punto decisivo è ascoltare il quartiere e adattare i servizi ai bisogni reali.', tip:'Quando il testo riporta un’opinione diretta, è spesso un punto chiave da ricordare.' },
-                { q:'Quale affermazione è corretta?', options:['La crescita dei visitatori è stata immediata.','La biblioteca moderna viene descritta come uno spazio aperto a tutti.','Il doposcuola è stato eliminato dopo pochi mesi.','La biblioteca non offre più sale di studio.'], answer:1, explanation:'L’ultimo paragrafo sottolinea che la biblioteca moderna resta uno dei pochi luoghi aperti a tutti.', tip:'Per le domande vero/falso implicite, confronta ogni opzione con il testo e scarta quelle troppo assolute.' },
-                { q:'Quale ostacolo viene menzionato?', options:['La mancanza di libri stranieri.','La difficoltà di convincere gli studenti universitari.','Il bisogno di investimenti, competenze e continuità.','L’opposizione del comune a ogni cambiamento.'], answer:2, explanation:'Nel finale si cita la necessità di investimenti, personale competente e continuità.', tip:'Gli ostacoli operativi compaiono spesso nella chiusura del testo.' }
-              ]
-            }
-          ]
-        },
-        language: {
-          key: 'language',
-          title: 'Competenza linguistica',
-          short: 'Lingua',
-          time: 14 * 60,
-          description: 'Cloze, scelta multipla e lessico in contesto per un allenamento B2 più serio.',
-          type: 'language',
-          questions: [
-            { q:'Se avessi saputo della riunione, ci ______ anche io.', options:['verrei','sarei venuto','vengo','venissi'], answer:1, explanation:'È un periodo ipotetico dell’irrealtà nel passato: se avessi saputo… sarei venuto.', tip:'Riconosci subito se la frase parla di una condizione irreale nel passato.' },
-            { q:'Nonostante ______ molto stanco, ha finito il lavoro in serata.', options:['era','fosse','essere','sia'], answer:1, explanation:'Dopo “nonostante” con frase esplicita si usa il congiuntivo: fosse molto stanco.', tip:'I connettivi concessivi attivano spesso il congiuntivo.' },
-            { q:'Il direttore ha chiesto che il progetto ______ entro venerdì.', options:['viene rivisto','venisse rivisto','sarà rivisto','rivisto'], answer:1, explanation:'Dopo “ha chiesto che” serve il congiuntivo imperfetto in dipendenza da un verbo al passato.', tip:'Volontà, richiesta e necessità richiedono attenzione al modo verbale.' },
-            { q:'Questa soluzione è interessante, ma economicamente poco ______.', options:['sostenibile','sostenuta','sostenente','sostenitiva'], answer:0, explanation:'L’aggettivo corretto e naturale è “sostenibile”.', tip:'Nel B2 conta molto la naturalezza lessicale, non solo la grammatica.' },
-            { q:'Il relatore ha parlato in modo così chiaro che tutti sono riusciti a ______ il punto centrale.', options:['afferrare','prendere da','tirare','portare'], answer:0, explanation:'“Afferrare il punto centrale” è una collocazione naturale nel significato di capire bene.', tip:'Le collocazioni sono uno dei segnali più importanti del livello intermedio-alto.' },
-            { q:'Non ero convinto all’inizio; ______, dopo aver visto i risultati, ho cambiato idea.', options:['sebbene','inoltre','tuttavia','perciò'], answer:2, explanation:'“Tuttavia” introduce un contrasto logico con la frase precedente.', tip:'Scegli il connettore in base alla relazione logica, non per semplice abitudine.' }
-          ]
-        },
-        listening: {
-          key:'listening',
-          title:'Comprensione dell’ascolto',
-          short:'Ascolto',
-          time:11*60,
-          description:'Breve annuncio con ascolto guidato e domande di comprensione.',
-          type:'listening',
-          transcript:`Buonasera a tutti. Vi informiamo che da martedì prossimo il museo civico prolungherà l’orario di apertura fino alle venti nei giorni di giovedì e venerdì. La decisione è stata presa per permettere anche a chi lavora di visitare la nuova mostra fotografica dedicata ai paesaggi urbani italiani. Inoltre, per i residenti sotto i venticinque anni, l’ingresso del venerdì sera costerà la metà. Sul sito del museo è già possibile prenotare una visita guidata, ma i posti disponibili sono limitati.`,
-          questions:[
-            { q:'Quando entra in vigore il nuovo orario?', options:['Da domani','Da martedì prossimo','Dal mese prossimo','Dal prossimo venerdì'], answer:1, explanation:'L’annuncio dice chiaramente “da martedì prossimo”.', tip:'Le informazioni temporali sono spesso decisive nelle prove d’ascolto.' },
-            { q:'Perché il museo prolunga l’orario?', options:['Per ospitare un concerto serale','Per facilitare la visita anche a chi lavora','Per ridurre il numero di prenotazioni','Per chiudere prima nel weekend'], answer:1, explanation:'Il motivo esplicito è permettere anche a chi lavora di visitare la mostra.', tip:'Ascolta con attenzione le frasi introdotte da “per” o “per permettere”.' },
-            { q:'Chi ha diritto alla riduzione?', options:['Tutti i visitatori','I turisti stranieri','I residenti sotto i 25 anni','Gli studenti universitari di tutta Italia'], answer:2, explanation:'La riduzione del venerdì sera è per i residenti sotto i venticinque anni.', tip:'Le condizioni doppie, come residenza + età, compaiono spesso.' }
-          ]
-        },
-        writing: {
-          key:'writing',
-          title:'Produzione scritta',
-          short:'Scrittura',
-          time:18*60,
-          description:'Compito argomentativo con checklist e conteggio parole.',
-          type:'writing',
-          prompt:`Hai letto un articolo che sostiene che lavorare sempre da casa migliori automaticamente la qualità della vita.
+function showScreen(key){
+  Object.values(screens).forEach(s => s.classList.add('hidden'));
+  screens[key].classList.remove('hidden');
+  state.screen = key;
+  const map = {landing:0, fullIntro:18, practice:28, picker:38, exam:70, results:100};
+  el.heroBar.style.width = (map[key] || 0) + '%';
+}
 
-Scrivi un testo di 180–220 parole in cui:
-- riassumi la posizione dell’articolo;
-- esprimi il tuo punto di vista;
-- presenti almeno due vantaggi e due possibili svantaggi;
-- concludi con una riflessione personale.`
-        },
-        speaking: {
-          key:'speaking',
-          title:'Produzione orale',
-          short:'Orale',
-          time:8*60,
-          description:'Prompt orale con fase di preparazione e autovalutazione.',
-          type:'speaking',
-          prompt:`Parla di un’esperienza in cui hai dovuto adattarti a una situazione nuova: un trasferimento, un nuovo lavoro, un corso o un cambiamento importante nella tua routine.
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
 
-Nel tuo intervento:
-- descrivi il contesto;
-- spiega le difficoltà incontrate;
-- racconta come le hai affrontate;
-- valuta che cosa hai imparato.`
-        }
-      },
-      state: {
-        screen:'landing',
-        mode:null,
-        currentSection:null,
-        queue:[],
-        queueIndex:0,
-        currentQuestionIndex:0,
-        readingBlockIndex:0,
-        score:0,
-        sectionScores:{},
-        timerRemaining:0,
-        timerId:null,
-        pendingNext:null,
-        answered:false,
-        writingDraft:'',
-        speakingNotes:'',
-        speakingPhase:'prep',
-        listenCount:0,
-        lastEntry:'practice'
-      }
+function sample(arr,count){
+  if(count === 'all' || count >= arr.length) return shuffle(arr);
+  return shuffle(arr).slice(0,count);
+}
+
+function fmtTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = Math.floor(sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+function stopTimer(){
+  if(state.timerId) clearInterval(state.timerId);
+  state.timerId = null;
+}
+
+function startTimer(sec){
+  stopTimer();
+  state.timer = sec;
+  el.statTimer.textContent = fmtTime(state.timer);
+  state.timerId = setInterval(() => {
+    state.timer--;
+    el.statTimer.textContent = fmtTime(Math.max(0,state.timer));
+    if(state.timer <= 0) {
+      stopTimer();
+    }
+  },1000);
+}
+
+function renderPracticeGrid(){
+  const cards = [
+    ['reading','10 letture diverse con domande di comprensione.'],
+    ['grammar','50 domande tra grammatica, lessico e strutture.'],
+    ['listening','12 ascolti brevi con TTS del browser.'],
+    ['writing','10 tracce di scrittura con contatore parole.'],
+    ['speaking','5 prompt orali con tempo di preparazione.']
+  ];
+  el.practiceGrid.innerHTML = cards.map(([key,desc])=> {
+    const c = CONFIG[key];
+    return `
+      <article class="card" data-practice-section="${key}">
+        <span class="pill">Banco casuale</span>
+        <h3>${c.title}</h3>
+        <p>${desc}</p>
+        <div class="features">
+          <div>• Banco totale: ${c.max}</div>
+          <div>• Quantità scelta da te o tutto</div>
+          <div>• Set nuovo a ogni avvio</div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function openPicker(sectionKey){
+  state.currentPickerKey = sectionKey;
+  const c = CONFIG[sectionKey];
+  el.pickerTitle.textContent = c.title;
+  el.pickerDescription.textContent = `Puoi scegliere un numero specifico di attività oppure provare tutto il banco disponibile per questa sezione.`;
+  el.pickerTag.textContent = 'Pratica randomizzata';
+  const opts = ['<option value="all">Tutto il banco</option>'];
+  for(let i=1;i<=c.max;i++) opts.push(`<option value="${i}" ${i===c.practiceDefault?'selected':''}>${i}</option>`);
+  el.pickerCount.innerHTML = opts.join('');
+  el.pickerNote.textContent = `Disponibili: ${c.max} attività totali. Ogni set viene estratto in modo casuale.`;
+  showScreen('picker');
+}
+
+function buildPracticeRun(sectionKey,countValue){
+  const count = countValue === 'all' ? 'all' : Number(countValue);
+  state.lastRun = {mode:'practice', sectionKey, countValue};
+  state.mode = 'practice';
+  state.sectionsQueue = [sectionKey];
+  state.sectionIndex = 0;
+  state.results = {};
+  state.score = 0;
+  state.correctObjective = 0;
+  state.answeredObjective = 0;
+  state.totalObjective = 0;
+  buildSection(sectionKey,count);
+  showScreen('exam');
+  renderCurrentItem();
+}
+
+function buildFullRun(){
+  state.lastRun = {mode:'full'};
+  state.mode = 'full';
+  state.sectionsQueue = ['reading','grammar','listening','writing','speaking'];
+  state.sectionIndex = 0;
+  state.results = {};
+  state.score = 0;
+  state.correctObjective = 0;
+  state.answeredObjective = 0;
+  state.totalObjective = 0;
+  buildSection(state.sectionsQueue[0], CONFIG[state.sectionsQueue[0]].fullCount);
+  showScreen('exam');
+  renderCurrentItem();
+}
+
+function buildSection(sectionKey,count){
+  stopSpeech();
+  const c = CONFIG[sectionKey];
+  state.sectionKey = sectionKey;
+  state.itemIndex = 0;
+  state.sectionItems = generateItems(sectionKey,count);
+  state.results[sectionKey] = {title:c.title, total:state.sectionItems.length, answered:0, correct:0, completed:0, objective:c.objective};
+  const totalTime = c.timePerItem * Math.max(1,state.sectionItems.length);
+  startTimer(totalTime);
+  updateStats();
+}
+
+function generateItems(sectionKey,count){
+  const c = CONFIG[sectionKey];
+  if(sectionKey === 'reading') return sample(BANKS.readingBank, count);
+  if(sectionKey === 'grammar') return sample(BANKS.competenzaBank, count).map(q => {
+    const zipped = q.options.map((opt,idx)=>({opt, idx}));
+    const shuffled = shuffle(zipped);
+    return {
+      ...q,
+      options: shuffled.map(x=>x.opt),
+      answer: shuffled.findIndex(x=>x.idx===q.answer)
     };
+  });
+  if(sectionKey === 'listening') return sample(BANKS.listeningBank, count).map(q => {
+    const zipped = q.options.map((opt,idx)=>({opt, idx}));
+    const shuffled = shuffle(zipped);
+    return {
+      ...q,
+      options: shuffled.map(x=>x.opt),
+      answer: shuffled.findIndex(x=>x.idx===q.answer),
+      listens: 0
+    };
+  });
+  if(sectionKey === 'writing') return sample(BANKS.writingPrompts, count).map((prompt,i)=>({id:i+1,prompt}));
+  if(sectionKey === 'speaking') return sample(BANKS.oralPrompts, count).map((prompt,i)=>({id:i+1,prompt}));
+  return [];
+}
 
-    const $ = id => document.getElementById(id);
+function updateStats(){
+  const c = CONFIG[state.sectionKey] || {short:'—'};
+  const current = state.itemIndex + 1;
+  const total = state.sectionItems.length || 0;
+  el.statSection.textContent = c.short || '—';
+  el.statProgress.textContent = total ? `${Math.min(current,total)}/${total}` : '0/0';
+  el.statScore.textContent = state.score;
+  el.sectionBar.style.width = total ? `${(state.itemIndex/total)*100}%` : '0%';
+}
 
-    function init(){
-      renderPracticeCards();
-      bindActions();
-      showScreen('landing-screen');
-      updateHeroProgress(0);
-      hideFeedback();
-      if('serviceWorker' in navigator){
-        window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
-      }
+function showFeedback(title,body,tip,onNext){
+  el.modalTitle.textContent = title;
+  el.modalBody.textContent = body;
+  el.modalTip.textContent = tip || 'Rileggi la consegna e prova a individuare la logica della risposta.';
+  el.modal.classList.remove('hidden');
+  state.pendingAdvance = onNext;
+}
+
+function hideFeedback(){
+  el.modal.classList.add('hidden');
+  const fn = state.pendingAdvance;
+  state.pendingAdvance = null;
+  if(typeof fn === 'function') fn();
+}
+
+el.modalNext.addEventListener('click', hideFeedback);
+
+function renderCurrentItem(){
+  updateStats();
+  el.nextBtn.classList.add('hidden');
+  const item = state.sectionItems[state.itemIndex];
+  const sectionKey = state.sectionKey;
+  if(!item) {
+    completeSection();
+    return;
+  }
+  if(sectionKey === 'reading') renderReading(item);
+  else if(sectionKey === 'grammar') renderObjective(item,'Domanda di competenza linguistica');
+  else if(sectionKey === 'listening') renderListening(item);
+  else if(sectionKey === 'writing') renderWriting(item);
+  else if(sectionKey === 'speaking') renderSpeaking(item);
+}
+
+function renderReading(item){
+  const qIndex = item._qIndex || 0;
+  const q = item.questions[qIndex];
+  el.examContent.innerHTML = `
+    <div class="layout-2">
+      <article class="passage-card">
+        <span class="tag">Lettura casuale</span>
+        <h2>${item.title}</h2>
+        <div class="passage">${item.passage}</div>
+      </article>
+      <article class="question-card">
+        <div class="question-subtitle">Domanda ${qIndex+1} di ${item.questions.length} per questa lettura</div>
+        <h3 class="question-title">${q.q}</h3>
+        <div class="options">
+          ${q.options.map((opt,idx)=>`<button class="option" data-answer="${idx}">${opt}</button>`).join('')}
+        </div>
+      </article>
+    </div>
+  `;
+  bindObjectiveOptions(q, () => {
+    state.results.reading.answered++;
+    state.answeredObjective++;
+    const isLastQ = qIndex >= item.questions.length - 1;
+    if(isLastQ) {
+      state.itemIndex++;
+      renderCurrentItem();
+    } else {
+      item._qIndex = qIndex + 1;
+      renderCurrentItem();
     }
+  });
+}
 
-    function bindActions(){
-      document.querySelector('[data-action="open-full-intro"]').addEventListener('click',()=>showScreen('full-intro-screen'));
-      document.querySelector('[data-action="open-practice"]').addEventListener('click',()=>showScreen('practice-screen'));
-      document.querySelector('[data-action="start-full"]').addEventListener('click',startFullExam);
-      document.querySelectorAll('[data-action="go-home"]').forEach(btn=>btn.addEventListener('click',()=>{stopTimer(); showScreen('landing-screen'); updateHeroProgress(0);}));
-      document.querySelector('[data-action="restart-current"]').addEventListener('click',()=>{
-        if(app.state.currentSection){ startSection(app.state.currentSection.key, app.state.mode); }
+function renderObjective(item,subtitle){
+  el.examContent.innerHTML = `
+    <article class="question-card">
+      <div class="question-subtitle">${subtitle}</div>
+      <h3 class="question-title">${item.q}</h3>
+      <div class="options">
+        ${item.options.map((opt,idx)=>`<button class="option" data-answer="${idx}">${opt}</button>`).join('')}
+      </div>
+    </article>
+  `;
+  bindObjectiveOptions(item, () => {
+    state.results[state.sectionKey].answered++;
+    state.answeredObjective++;
+    state.itemIndex++;
+    renderCurrentItem();
+  });
+}
+
+function renderListening(item){
+  el.examContent.innerHTML = `
+    <article class="audio-card">
+      <span class="tag">Ascolto casuale</span>
+      <h2>${item.title}</h2>
+      <p class="sub">Premi “Ascolta” per far leggere il testo dal browser. In pratica hai feedback immediato; nella simulazione completa rispondi e vai avanti senza spiegazione.</p>
+      <div class="small-meta">
+        <span class="tag">Riproduzioni usate: <span id="listen-count">${item.listens || 0}</span></span>
+        <span class="tag">TTS del browser</span>
+      </div>
+      <div class="top-actions">
+        <button class="btn secondary" id="listen-btn">Ascolta</button>
+        <button class="btn secondary" id="stop-listen-btn">Stop</button>
+      </div>
+      <div class="question-subtitle" style="margin-top:10px">Domanda</div>
+      <h3 class="question-title">${item.q}</h3>
+      <div class="options">
+        ${item.options.map((opt,idx)=>`<button class="option" data-answer="${idx}">${opt}</button>`).join('')}
+      </div>
+    </article>
+  `;
+  document.getElementById('listen-btn').addEventListener('click', () => {
+    item.listens = (item.listens || 0) + 1;
+    document.getElementById('listen-count').textContent = item.listens;
+    speakText(item.script);
+  });
+  document.getElementById('stop-listen-btn').addEventListener('click', stopSpeech);
+  bindObjectiveOptions(item, () => {
+    state.results.listening.answered++;
+    state.answeredObjective++;
+    state.itemIndex++;
+    renderCurrentItem();
+  });
+}
+
+function renderWriting(item){
+  el.examContent.innerHTML = `
+    <article class="writing-card">
+      <span class="tag">Traccia scritta casuale</span>
+      <h2>Produzione scritta</h2>
+      <div class="prompt-box">${item.prompt}</div>
+      <textarea id="writing-area" placeholder="Scrivi qui la tua risposta..."></textarea>
+      <div class="small-meta">
+        <span class="tag">Parole: <span id="word-count">0</span></span>
+        <span class="tag">Puoi usare questa sezione per allenarti liberamente</span>
+      </div>
+      <div class="checklist">
+        <label class="checkline"><input type="checkbox"> Ho risposto alla traccia in modo chiaro.</label>
+        <label class="checkline"><input type="checkbox"> Ho usato connettori e un registro coerente.</label>
+        <label class="checkline"><input type="checkbox"> Ho controllato verbi, articoli e accordi.</label>
+      </div>
+      <div class="top-actions" style="margin-top:18px">
+        <button class="btn" id="complete-writing-btn">Consegna traccia</button>
+      </div>
+    </article>
+  `;
+  const area = document.getElementById('writing-area');
+  const count = document.getElementById('word-count');
+  area.addEventListener('input', () => {
+    count.textContent = area.value.trim() ? area.value.trim().split(/\s+/).length : 0;
+  });
+  document.getElementById('complete-writing-btn').addEventListener('click', () => {
+    state.results.writing.completed++;
+    state.itemIndex++;
+    renderCurrentItem();
+  });
+}
+
+function renderSpeaking(item){
+  el.examContent.innerHTML = `
+    <article class="oral-card">
+      <span class="tag">Prompt orale casuale</span>
+      <h2>Produzione orale</h2>
+      <div class="prompt-box">${item.prompt}</div>
+      <div class="small-meta">
+        <span class="tag">Suggerimento: prepara 30–60 secondi</span>
+        <span class="tag">Poi parla per 1–2 minuti</span>
+      </div>
+      <div class="checklist">
+        <label class="checkline"><input type="checkbox"> Ho organizzato bene l’introduzione.</label>
+        <label class="checkline"><input type="checkbox"> Ho dato almeno due idee sviluppate.</label>
+        <label class="checkline"><input type="checkbox"> Ho parlato con fluidità sufficiente.</label>
+      </div>
+      <div class="top-actions" style="margin-top:18px">
+        <button class="btn" id="complete-speaking-btn">Completa prompt</button>
+      </div>
+    </article>
+  `;
+  document.getElementById('complete-speaking-btn').addEventListener('click', () => {
+    state.results.speaking.completed++;
+    state.itemIndex++;
+    renderCurrentItem();
+  });
+}
+
+function bindObjectiveOptions(item, after){
+  document.querySelectorAll('.option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const chosen = Number(btn.dataset.answer);
+      const correct = chosen === item.answer;
+      document.querySelectorAll('.option').forEach((b,idx) => {
+        b.classList.add('locked');
+        if(idx === item.answer) b.classList.add('correct');
+        if(idx === chosen && idx !== item.answer) b.classList.add('wrong');
       });
-      $('feedback-next').addEventListener('click',closeFeedbackAndContinue);
-      $('back-context-btn').addEventListener('click',handleBackFromExam);
-    }
-
-    function renderPracticeCards(){
-      $('practice-grid').innerHTML = Object.values(app.sections).map(section=>`
-        <article class="section-card" data-section="${section.key}">
-          <span class="pill">Tempo guida ${formatTime(section.time)}</span>
-          <h3>${section.title}</h3>
-          <p>${section.description}</p>
-        </article>
-      `).join('');
-      document.querySelectorAll('[data-section]').forEach(card=>card.addEventListener('click',()=>startSection(card.dataset.section,'practice')));
-    }
-
-    function showScreen(id){
-      ['landing-screen','full-intro-screen','practice-screen','exam-screen','results-screen'].forEach(s=>$(s).classList.add('hidden'));
-      $(id).classList.remove('hidden');
-    }
-
-    function startFullExam(){
-      app.state.mode='full';
-      app.state.lastEntry='full';
-      app.state.queue=['reading','language','listening','writing','speaking'];
-      app.state.queueIndex=0;
-      app.state.sectionScores={};
-      startSection(app.state.queue[0],'full');
-    }
-
-    function startSection(sectionKey, mode='practice'){
-      stopTimer();
-      const section = app.sections[sectionKey];
-      app.state.currentSection = section;
-      app.state.mode = mode;
-      app.state.score = 0;
-      app.state.currentQuestionIndex = 0;
-      app.state.readingBlockIndex = 0;
-      app.state.listenCount = 0;
-      app.state.pendingNext = null;
-      app.state.answered = false;
-      app.state.writingDraft = localStorage.getItem('celi-writing-draft') || '';
-      app.state.speakingNotes = localStorage.getItem('celi-speaking-notes') || '';
-      app.state.speakingPhase = 'prep';
-      app.state.timerRemaining = section.time;
-      if(mode === 'practice') app.state.lastEntry='practice';
-      updateHeader(section.short,0,getTotalItems(section),0);
-      renderSection();
-      showScreen('exam-screen');
-      updateHeroProgress(20);
-      startTimer();
-    }
-
-    function getTotalItems(section){
-      if(section.type === 'reading') return section.blocks.reduce((sum,b)=>sum + b.questions.length,0);
-      if(section.questions) return section.questions.length;
-      return 1;
-    }
-
-    function updateHeader(sectionName, progress, total, score){
-      $('stat-section').textContent = sectionName;
-      $('stat-progress').textContent = `${progress}/${total}`;
-      $('stat-score').textContent = score;
-      $('section-progress-bar').style.width = total ? `${(progress/total)*100}%` : '0%';
-    }
-
-    function renderSection(){
-      const section = app.state.currentSection;
-      const root = $('exam-content');
-      $('next-btn').classList.add('hidden');
-      $('next-btn').disabled = true;
-      if(section.type === 'reading') root.innerHTML = renderReading();
-      if(section.type === 'language') root.innerHTML = renderLanguage();
-      if(section.type === 'listening') root.innerHTML = renderListening();
-      if(section.type === 'writing') root.innerHTML = renderWriting();
-      if(section.type === 'speaking') root.innerHTML = renderSpeaking();
-      bindSectionEvents();
-    }
-
-    function renderReading(){
-      const section = app.state.currentSection;
-      const block = section.blocks[app.state.readingBlockIndex];
-      const q = block.questions[app.state.currentQuestionIndex];
-      const questionNumber = readingQuestionGlobalIndex() + 1;
-      const total = getTotalItems(section);
-      return `
-        <div class="layout-2">
-          <article class="passage-card">
-            <span class="tag">Testo ${app.state.readingBlockIndex + 1}</span>
-            <h3 class="question-title">${block.title}</h3>
-            <div class="passage">${block.passage}</div>
-          </article>
-          <article class="question-card">
-            <span class="tag">Domanda ${questionNumber} / ${total}</span>
-            <h3 class="question-title">${q.q}</h3>
-            <p class="question-subtitle">Leggi bene il testo e scegli l’alternativa più adatta.</p>
-            <div class="options">${q.options.map((opt,i)=>`<button class="option" data-answer="${i}">${opt}</button>`).join('')}</div>
-          </article>
-        </div>`;
-    }
-
-    function renderLanguage(){
-      const section = app.state.currentSection;
-      const q = section.questions[app.state.currentQuestionIndex];
-      return `
-        <article class="question-card">
-          <span class="tag">Competenza linguistica</span>
-          <h3 class="question-title">${q.q}</h3>
-          <p class="question-subtitle">Scegli la soluzione grammaticalmente e lessicalmente più naturale.</p>
-          <div class="options">${q.options.map((opt,i)=>`<button class="option" data-answer="${i}">${opt}</button>`).join('')}</div>
-        </article>`;
-    }
-
-    function renderListening(){
-      const section = app.state.currentSection;
-      const q = section.questions[app.state.currentQuestionIndex];
-      const listensLeft = app.state.mode === 'full' ? Math.max(0, 2 - app.state.listenCount) : 'libero';
-      return `
-        <article class="listening-card">
-          <span class="tag">Ascolto guidato</span>
-          <h3 class="question-title">Annuncio pubblico</h3>
-          <p class="question-subtitle">Ascolta con attenzione. ${app.state.mode === 'full' ? `Riproduzioni disponibili: ${listensLeft}` : 'In pratica puoi riascoltare liberamente.'}</p>
-          <div class="listening-tools">
-            <button class="btn" id="listen-play">▶︎ Riproduci</button>
-            <button class="btn secondary" id="listen-transcript">Mostra / Nascondi trascrizione</button>
-          </div>
-          <div id="transcript-box" class="prompt-box hidden" style="margin-bottom:16px">${section.transcript}</div>
-          <span class="tag">Domanda ${app.state.currentQuestionIndex + 1} / ${section.questions.length}</span>
-          <h3 class="question-title">${q.q}</h3>
-          <div class="options">${q.options.map((opt,i)=>`<button class="option" data-answer="${i}">${opt}</button>`).join('')}</div>
-        </article>`;
-    }
-
-    function renderWriting(){
-      return `
-        <article class="writing-card">
-          <span class="tag">Produzione scritta</span>
-          <h3 class="question-title">Compito di scrittura</h3>
-          <div class="prompt-box">${app.state.currentSection.prompt.replace(/\n/g,'<br>')}</div>
-          <textarea id="writing-area" placeholder="Scrivi qui la tua risposta...">${escapeHtml(app.state.writingDraft)}</textarea>
-          <div class="top-actions" style="margin-top:16px">
-            <button class="btn secondary" id="save-writing">Salva bozza</button>
-            <button class="btn" id="finish-writing">Termina sezione</button>
-          </div>
-          <div class="checklist">
-            <div class="checkline">• Hai riassunto la posizione iniziale in modo chiaro?</div>
-            <div class="checkline">• Hai espresso il tuo punto di vista con connettori adeguati?</div>
-            <div class="checkline">• Hai inserito almeno due vantaggi e due svantaggi?</div>
-            <div class="checkline">• Hai una conclusione coerente?</div>
-          </div>
-          <div class="footer-note">Il punteggio di questa demo assegna 1 punto se il testo ha una lunghezza sufficiente. In una versione futura si potrà aggiungere una rubrica più dettagliata.</div>
-        </article>`;
-    }
-
-    function renderSpeaking(){
-      return `
-        <article class="speaking-card">
-          <span class="tag">Produzione orale</span>
-          <h3 class="question-title">Prompt orale</h3>
-          <div class="prompt-box">${app.state.currentSection.prompt.replace(/\n/g,'<br>')}</div>
-          <div class="top-actions" style="margin-top:16px">
-            <button class="btn secondary" id="toggle-phase">Passa a: ${app.state.speakingPhase === 'prep' ? 'risposta' : 'preparazione'}</button>
-            <button class="btn" id="finish-speaking">Termina sezione</button>
-          </div>
-          <div class="feedback-box">
-            <strong>Fase attuale:</strong> <span id="phase-label">${app.state.speakingPhase === 'prep' ? 'Preparazione' : 'Risposta orale'}</span>
-            <div class="sub" style="margin-top:8px">Suggerimento: prepara una scaletta breve, poi registra la tua voce con il telefono per autovalutarti.</div>
-          </div>
-          <textarea id="speaking-notes" placeholder="Appunti / scaletta orale...">${escapeHtml(app.state.speakingNotes)}</textarea>
-          <div class="checklist">
-            <div class="checkline">• Contesto chiaro</div>
-            <div class="checkline">• Difficoltà spiegate bene</div>
-            <div class="checkline">• Strategie usate per affrontarle</div>
-            <div class="checkline">• Riflessione finale coerente</div>
-          </div>
-        </article>`;
-    }
-
-    function bindSectionEvents(){
-      const section = app.state.currentSection;
-      if(['reading','language','listening'].includes(section.type)) bindObjectiveEvents(section);
-      if(section.type === 'listening'){
-        $('listen-play').addEventListener('click', handleListenPlay);
-        $('listen-transcript').addEventListener('click',()=>$('transcript-box').classList.toggle('hidden'));
+      if(correct) {
+        state.score++;
+        state.correctObjective++;
+        state.results[state.sectionKey].correct++;
       }
-      if(section.type === 'writing'){
-        $('writing-area').addEventListener('input',e=> app.state.writingDraft = e.target.value);
-        $('save-writing').addEventListener('click',()=>{ localStorage.setItem('celi-writing-draft', app.state.writingDraft); alert('Bozza salvata sul dispositivo.'); });
-        $('finish-writing').addEventListener('click',()=>{
-          localStorage.setItem('celi-writing-draft', app.state.writingDraft);
-          app.state.score = estimateWritingScore(app.state.writingDraft);
-          finishSection();
-        });
-      }
-      if(section.type === 'speaking'){
-        $('speaking-notes').addEventListener('input',e=> app.state.speakingNotes = e.target.value);
-        $('toggle-phase').addEventListener('click',()=>{ app.state.speakingPhase = app.state.speakingPhase === 'prep' ? 'speak' : 'prep'; renderSection(); });
-        $('finish-speaking').addEventListener('click',()=>{
-          localStorage.setItem('celi-speaking-notes', app.state.speakingNotes);
-          app.state.score = estimateSpeakingScore(app.state.speakingNotes);
-          finishSection();
-        });
-      }
-    }
-
-    function bindObjectiveEvents(section){
-      document.querySelectorAll('.option').forEach(btn=>{
-        btn.addEventListener('click',()=>handleObjectiveAnswer(section, Number(btn.dataset.answer)));
-      });
-    }
-
-    function handleObjectiveAnswer(section, choice){
-      if(app.state.answered) return;
-      app.state.answered = true;
-      const item = getCurrentObjectiveItem(section);
-      const options = document.querySelectorAll('.option');
-      options.forEach((opt,i)=>{
-        opt.classList.add('locked');
-        if(i === item.answer) opt.classList.add('correct');
-        if(i === choice && choice !== item.answer) opt.classList.add('wrong');
-        opt.disabled = true;
-      });
-      const correct = choice === item.answer;
-      if(correct) app.state.score += 1;
-      updateHeader(section.short, currentProgressCount()+1, getTotalItems(section), app.state.score);
-      if(app.state.mode === 'practice'){
-        showFeedback(correct ? 'Risposta corretta' : 'Risposta da rivedere', item.explanation, item.tip, advanceObjective);
+      updateStats();
+      if(state.mode === 'practice') {
+        showFeedback(
+          correct ? 'Risposta corretta' : 'Risposta da rivedere',
+          item.explanation || 'Controlla meglio il rapporto tra consegna e opzioni.',
+          item.tip || 'Rileggi la domanda con attenzione e cerca i dettagli che guidano la scelta.',
+          after
+        );
       } else {
-        setTimeout(advanceObjective, 500);
+        setTimeout(after, 420);
       }
-    }
+    });
+  });
+}
 
-    function getCurrentObjectiveItem(section){
-      if(section.type === 'reading'){
-        return section.blocks[app.state.readingBlockIndex].questions[app.state.currentQuestionIndex];
-      }
-      return section.questions[app.state.currentQuestionIndex];
-    }
+function completeSection(){
+  stopSpeech();
+  stopTimer();
+  const currentKey = state.sectionKey;
+  state.sectionIndex++;
+  if(state.sectionIndex < state.sectionsQueue.length) {
+    const nextKey = state.sectionsQueue[state.sectionIndex];
+    const count = state.mode === 'full' ? CONFIG[nextKey].fullCount : (state.lastRun.countValue === 'all' ? 'all' : Number(state.lastRun.countValue));
+    buildSection(nextKey, count);
+    renderCurrentItem();
+  } else {
+    renderResults();
+  }
+}
 
-    function currentProgressCount(){
-      const section = app.state.currentSection;
-      if(section.type === 'reading') return readingQuestionGlobalIndex();
-      return app.state.currentQuestionIndex;
-    }
+function renderResults(){
+  showScreen('results');
+  const objectivePerfect = state.answeredObjective > 0 && state.correctObjective === state.answeredObjective;
+  const practiceNonObjectiveDone = (state.results.writing?.completed || 0) + (state.results.speaking?.completed || 0);
+  const allCompletedNonObjective = Object.entries(state.results)
+    .filter(([k,v]) => !v.objective)
+    .every(([k,v]) => v.completed === v.total);
+  const perfect = objectivePerfect && allCompletedNonObjective;
+  el.resultBanner.className = 'result-banner ' + (perfect ? 'perfect' : 'completed');
+  el.resultBanner.innerHTML = perfect
+    ? `<h2 style="margin:0 0 8px">Perfetto</h2><div>Hai completato la simulazione senza errori nelle parti oggettive e hai portato a termine tutte le tracce aperte.</div>`
+    : `<h2 style="margin:0 0 8px">Completato</h2><div>Hai concluso il percorso. Ora puoi ripetere il set oppure generarne uno nuovo.</div>`;
 
-    function readingQuestionGlobalIndex(){
-      const section = app.state.currentSection;
-      let count = 0;
-      for(let i=0;i<app.state.readingBlockIndex;i++) count += section.blocks[i].questions.length;
-      count += app.state.currentQuestionIndex;
-      return count;
-    }
+  const entries = Object.entries(state.results);
+  el.resultScores.innerHTML = entries.map(([key,res]) => {
+    const value = res.objective ? `${res.correct} / ${res.answered || res.total}` : `${res.completed} / ${res.total}`;
+    const note = res.objective ? 'Risposte corrette' : 'Tracce completate';
+    return `<div class="score-box"><div>${res.title}</div><div class="big">${value}</div><div class="mini">${note}</div></div>`;
+  }).join('');
+  el.resultNotes.innerHTML = `
+    <strong>Totale parti oggettive:</strong> ${state.correctObjective} risposte corrette su ${state.answeredObjective}. <br>
+    <strong>Consiglio:</strong> usa la modalità pratica per generare nuovi set casuali sulle sezioni in cui senti più incertezza.
+  `;
+  el.heroBar.style.width = '100%';
+}
 
-    function advanceObjective(){
-      hideFeedback();
-      app.state.answered = false;
-      const section = app.state.currentSection;
-      if(section.type === 'reading'){
-        const block = section.blocks[app.state.readingBlockIndex];
-        app.state.currentQuestionIndex += 1;
-        if(app.state.currentQuestionIndex >= block.questions.length){
-          app.state.readingBlockIndex += 1;
-          app.state.currentQuestionIndex = 0;
-          if(app.state.readingBlockIndex >= section.blocks.length){
-            finishSection();
-            return;
-          }
-        }
-      } else {
-        app.state.currentQuestionIndex += 1;
-        if(app.state.currentQuestionIndex >= section.questions.length){
-          finishSection();
-          return;
-        }
-      }
-      updateHeader(section.short, currentProgressCount(), getTotalItems(section), app.state.score);
-      renderSection();
-    }
+function speakText(text){
+  stopSpeech();
+  if(!('speechSynthesis' in window)) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'it-IT';
+  utter.rate = 0.96;
+  utter.pitch = 1;
+  state.audioUtterance = utter;
+  speechSynthesis.speak(utter);
+}
 
-    function handleListenPlay(){
-      const section = app.state.currentSection;
-      if(app.state.mode === 'full' && app.state.listenCount >= 2){
-        alert('Hai già usato le due riproduzioni disponibili in modalità simulazione completa.');
-        return;
-      }
-      app.state.listenCount += 1;
-      playSpeech(section.transcript);
-      renderSection();
-    }
+function stopSpeech(){
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  state.audioUtterance = null;
+}
 
-    function finishSection(){
-      stopTimer();
-      const section = app.state.currentSection;
-      const total = getTotalItems(section);
-      app.state.sectionScores[section.key] = { title: section.title, score: app.state.score, total };
-      if(app.state.mode === 'full'){
-        app.state.queueIndex += 1;
-        if(app.state.queueIndex < app.state.queue.length){
-          startSection(app.state.queue[app.state.queueIndex], 'full');
-          return;
-        }
-        renderResults('full');
-        return;
-      }
-      renderResults('practice');
-    }
+function goHome(){
+  stopSpeech();
+  stopTimer();
+  showScreen('landing');
+}
 
-    function renderResults(mode){
-      showScreen('results-screen');
-      updateHeroProgress(100);
-      const items = Object.values(app.state.sectionScores);
-      const totalScore = items.reduce((sum,i)=>sum+i.score,0);
-      const totalItems = items.reduce((sum,i)=>sum+i.total,0);
-      const perfect = totalItems > 0 && totalScore === totalItems;
-      $('result-banner').className = `result-banner ${perfect ? 'perfect' : 'completed'}`;
-      $('result-banner').innerHTML = perfect
-        ? `<h2 style="margin:0">Perfetto</h2><p style="margin:8px 0 0">Hai completato questa prova senza errori nelle parti oggettive. Ottimo controllo e ottima concentrazione.</p>`
-        : `<h2 style="margin:0">Completato</h2><p style="margin:8px 0 0">Hai finito questa prova. Usa il report per capire dove consolidare il tuo livello B2.</p>`;
-      $('result-scores').innerHTML = items.map(item=>`
-        <div class="score-box">
-          <div class="mini">${item.title}</div>
-          <div class="big">${item.score}/${item.total}</div>
-        </div>`).join('');
-      $('result-notes').textContent = mode === 'full'
-        ? 'Simulazione completa terminata. Nella prossima iterazione si può ampliare ancora il peso specifico di lettura, scrittura e orale con rubriche più precise.'
-        : 'Pratica completata. Puoi ripetere subito questa sezione oppure tornare alla home per allenarti in un’altra abilità.';
-    }
+function restartCurrent(){
+  if(!state.lastRun) return goHome();
+  if(state.lastRun.mode === 'full') {
+    buildFullRun();
+  } else {
+    buildPracticeRun(state.lastRun.sectionKey, state.lastRun.countValue);
+  }
+}
 
-    function handleBackFromExam(){
-      stopTimer();
-      if(app.state.mode === 'full'){
-        showScreen('full-intro-screen');
-      } else {
-        showScreen('practice-screen');
-      }
-    }
+document.addEventListener('click', (e) => {
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  if(action === 'open-full-intro') showScreen('fullIntro');
+  if(action === 'open-practice') showScreen('practice');
+  if(action === 'go-home') goHome();
+  if(action === 'start-full') buildFullRun();
+  if(action === 'restart-current') restartCurrent();
 
-    function showFeedback(title, body, tip, nextFn){
-      $('feedback-title').textContent = title;
-      $('feedback-body').textContent = body;
-      $('feedback-tip').textContent = tip;
-      app.state.pendingNext = nextFn;
-      $('feedback-modal').classList.remove('hidden');
-      $('feedback-modal').setAttribute('aria-hidden','false');
-    }
+  const practiceCard = e.target.closest('[data-practice-section]');
+  if(practiceCard) openPicker(practiceCard.dataset.practiceSection);
+});
 
-    function hideFeedback(){
-      $('feedback-modal').classList.add('hidden');
-      $('feedback-modal').setAttribute('aria-hidden','true');
-    }
+el.pickerStart.addEventListener('click', () => {
+  buildPracticeRun(state.currentPickerKey, el.pickerCount.value);
+});
+el.pickerBack.addEventListener('click', () => showScreen('practice'));
+el.backBtn.addEventListener('click', () => {
+  if(state.mode === 'practice') showScreen('practice');
+  else showScreen('fullIntro');
+  stopTimer();
+  stopSpeech();
+});
 
-    function closeFeedbackAndContinue(){
-      hideFeedback();
-      const fn = app.state.pendingNext;
-      app.state.pendingNext = null;
-      if(fn) fn();
-    }
-
-    function estimateWritingScore(text){
-      const words = text.trim().split(/\s+/).filter(Boolean).length;
-      return words >= 170 ? 1 : 0;
-    }
-
-    function estimateSpeakingScore(text){
-      const words = text.trim().split(/\s+/).filter(Boolean).length;
-      return words >= 35 ? 1 : 0;
-    }
-
-    function startTimer(){
-      updateTimer();
-      app.state.timerId = setInterval(()=>{
-        app.state.timerRemaining -= 1;
-        updateTimer();
-        if(app.state.timerRemaining <= 0){
-          stopTimer();
-          alert('Tempo scaduto per questa sezione.');
-          finishSection();
-        }
-      },1000);
-    }
-
-    function stopTimer(){
-      if(app.state.timerId) clearInterval(app.state.timerId);
-      app.state.timerId = null;
-    }
-
-    function updateTimer(){
-      $('stat-timer').textContent = formatTime(Math.max(0, app.state.timerRemaining));
-    }
-
-    function updateHeroProgress(value){
-      $('hero-progress-bar').style.width = `${value}%`;
-    }
-
-    function formatTime(sec){
-      const m = String(Math.floor(sec/60)).padStart(2,'0');
-      const s = String(sec%60).padStart(2,'0');
-      return `${m}:${s}`;
-    }
-
-    function playSpeech(text){
-      if(!('speechSynthesis' in window)){
-        alert('La sintesi vocale non è disponibile in questo browser.');
-        return;
-      }
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'it-IT';
-      utterance.rate = 0.92;
-      window.speechSynthesis.speak(utterance);
-    }
-
-    function escapeHtml(text){
-      return String(text || '')
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#039;');
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+renderPracticeGrid();
+showScreen('landing');
+</script>
 </body>
 </html>

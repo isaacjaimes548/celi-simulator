@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>CELI B2 Trainer</title>
   <meta name="theme-color" content="#173b8a">
-  <meta name="description" content="Simulatore PWA ispirato alla struttura del CELI 3 / B2.">
+  <meta name="description" content="Simulatore PWA originale ispirato al CELI B2 con simulazione completa e pratica per sezione.">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -14,162 +14,169 @@
   <meta name="apple-mobile-web-app-title" content="CELI B2 Trainer">
   <style>
     :root {
-      --bg1: #0f1f52;
-      --bg2: #5d2c96;
-      --card: #ffffff;
-      --ink: #1d2b4a;
-      --muted: #6a7285;
-      --line: #e7ebf3;
-      --good: #14b86a;
-      --bad: #eb4d5c;
-      --accent: #5978ff;
-      --accent2: #8c5cff;
-      --shadow: 0 18px 50px rgba(17, 24, 39, 0.18);
-      --radius: 24px;
+      --bg1:#0f1f52;
+      --bg2:#5d2c96;
+      --card:#ffffff;
+      --card-2:#f7f9fe;
+      --ink:#17284a;
+      --muted:#66718a;
+      --line:#e4eaf5;
+      --accent:#5375ff;
+      --accent2:#8e5cff;
+      --good:#17b66d;
+      --bad:#e55361;
+      --warn:#f4b400;
+      --shadow:0 18px 50px rgba(17,24,39,.14);
+      --radius:26px;
     }
-    * { box-sizing: border-box; }
-    html, body { margin:0; min-height:100%; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--ink); }
-    body {
-      background: linear-gradient(135deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-      padding: 18px;
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+    body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:14px}
+    .app{max-width:1080px;margin:0 auto;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);border-radius:30px;overflow:hidden;box-shadow:var(--shadow)}
+    .hero{padding:32px 22px 22px;background:linear-gradient(90deg,rgba(90,123,255,.96),rgba(145,88,255,.9));color:#fff;text-align:center}
+    .hero h1{margin:0;font-size:clamp(2rem,4vw,3.3rem)}
+    .hero p{margin:10px auto 0;max-width:760px;opacity:.95;font-size:1.02rem;line-height:1.5}
+    .hero-progress{margin-top:16px;height:10px;background:rgba(255,255,255,.22);border-radius:999px;overflow:hidden}
+    .hero-progress > div{height:100%;width:0;background:linear-gradient(90deg,#16d474,#74ff85);transition:width .28s ease}
+    .page{padding:24px;background:#f5f8ff;min-height:74vh}
+    .hidden{display:none!important}
+    .btn{border:none;border-radius:18px;padding:14px 18px;font-size:1rem;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--shadow)}
+    .btn.secondary{background:#fff;color:var(--accent);border:1px solid #d5dfff;box-shadow:none}
+    .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:none}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+    .landing{display:grid;gap:24px;align-items:start}
+    .landing-intro{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+    .landing-intro h2{margin:0 0 10px;font-size:1.55rem}
+    .landing-intro p{margin:0;color:var(--muted);line-height:1.65}
+    .dual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .choice-card,.section-card,.panel,.result-card,.question-card,.writing-card,.speaking-card,.listening-card,.passage-card,.intro-card{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
     }
-    .shell {
-      max-width: 980px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.08);
-      border-radius: 28px;
-      overflow: hidden;
-      backdrop-filter: blur(6px);
-      box-shadow: var(--shadow);
-    }
-    .hero {
-      padding: 34px 26px 22px;
-      background: linear-gradient(90deg, rgba(103,138,255,.95), rgba(145,88,255,.9));
-      color: white;
-      text-align: center;
-    }
-    .hero h1 { margin: 0 0 10px; font-size: clamp(2rem, 4vw, 3.1rem); }
-    .hero p { margin: 0 auto; max-width: 720px; opacity: .95; font-size: 1.02rem; }
-    .bar-wrap {
-      margin-top: 18px; height: 10px; background: rgba(255,255,255,.2); border-radius: 999px; overflow: hidden;
-    }
-    .bar { height:100%; width:0; background: linear-gradient(90deg, #18d77a, #6eff8c); transition: width .3s ease; }
-    .page { background: #f6f8fd; min-height: 68vh; padding: 26px; }
-    .hidden { display:none !important; }
-    .grid { display:grid; gap:18px; }
-    .cards { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-    .card, .section-card, .mode-card, .result-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-    .section-card, .mode-card {
-      padding: 22px; cursor:pointer; transition: transform .16s ease, box-shadow .16s ease;
-    }
-    .section-card:hover, .mode-card:hover, .option:hover, .btn:hover { transform: translateY(-2px); }
-    .section-card h3, .mode-card h3 { margin:0 0 8px; font-size:1.18rem; }
-    .section-card p, .mode-card p, .tiny { margin:0; color:var(--muted); }
-    .stat-row { display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; margin-bottom: 18px; }
-    .stat {
-      background: rgba(255,255,255,.9); border-radius: 18px; padding:16px; text-align:center; border:1px solid var(--line);
-    }
-    .stat .label { font-size:.94rem; color: var(--muted); font-weight:700; }
-    .stat .value { margin-top:6px; font-size:2rem; font-weight:900; }
-    .value.good { color:var(--good); }
-    .value.bad { color:var(--bad); }
-    .value.gold { color:#f2b702; }
-    .top-actions { display:flex; gap:12px; flex-wrap:wrap; margin: 0 0 18px; }
-    .btn {
-      border:none; cursor:pointer; border-radius: 16px; padding: 14px 18px; font-weight: 800; font-size: 1rem;
-      background: linear-gradient(90deg, var(--accent), var(--accent2)); color:white; box-shadow: var(--shadow);
-    }
-    .btn.secondary { background: white; color: var(--accent); border:1px solid #cfdbff; box-shadow:none; }
-    .btn.ghost { background: transparent; color: white; border: 1px solid rgba(255,255,255,.35); box-shadow:none; }
-    .question-card, .passage-card, .writing-card, .speaking-card, .listening-card {
-      background: white; border:1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); margin-top: 18px;
-    }
-    .question-title { font-size: 1.35rem; margin: 0 0 8px; }
-    .question-subtitle { color:var(--muted); margin:0 0 16px; }
-    .options { display:grid; gap:12px; margin-top: 18px; }
-    .option {
-      border:1px solid var(--line); background: white; border-radius: 16px; padding: 16px; cursor:pointer; font-weight:700; transition: all .14s ease;
-    }
-    .option.correct { background: #e8fff3; border-color:#7ce4ab; }
-    .option.wrong { background: #fff0f3; border-color:#ff98a5; }
-    .layout-2 { display:grid; grid-template-columns: 1.1fr .9fr; gap:18px; }
-    .passage {
-      white-space: pre-wrap; line-height:1.7; font-size:1.02rem; color:#31415f;
-    }
-    .tag { display:inline-block; padding:6px 10px; border-radius:999px; background:#edf3ff; color:#355cc8; font-size:.82rem; font-weight:800; margin-bottom:12px; }
-    textarea {
-      width:100%; min-height: 220px; resize: vertical; border-radius: 18px; border:1px solid var(--line); padding:16px; font: inherit; line-height:1.55;
-    }
-    .prompt-box {
-      background:#f7f9fd; border:1px solid var(--line); border-radius: 18px; padding: 16px; line-height:1.65;
-    }
-    .meter { height: 10px; border-radius:999px; background:#e8edf8; overflow:hidden; margin-top: 14px; }
-    .meter > div { height:100%; width:0; background: linear-gradient(90deg, #1ad579, #76ff78); transition: width .3s linear; }
-    .modal {
-      position: fixed; inset:0; background: rgba(13, 20, 41, .55); display:flex; align-items:center; justify-content:center; padding:20px; z-index: 40;
-    }
-    .modal-card {
-      width:min(760px, 100%); background:white; border-radius: 28px; box-shadow: var(--shadow); padding: 24px;
-    }
-    .modal-card h2 { margin:0 0 8px; font-size: clamp(2rem, 4vw, 3rem); color:#5d73e8; text-align:center; }
-    .feedback-box { background:#f5f7fc; border:1px solid var(--line); border-radius:18px; padding: 16px; margin-top: 12px; }
-    .result-card { padding: 24px; }
-    .result-banner { text-align:center; padding: 28px 18px; border-radius: 22px; color:white; margin-bottom:20px; }
-    .result-banner.completed { background: linear-gradient(90deg, #3f69ff, #875dff); }
-    .result-banner.perfect { background: linear-gradient(90deg, #11c874, #44d16f); }
-    .scores { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; }
-    .score-box { border:1px solid var(--line); border-radius: 18px; padding: 16px; text-align:center; }
-    .mini { font-size:.86rem; color:var(--muted); }
-    .timer-big { font-size: 2rem; font-weight: 900; }
-    .footer-note { margin-top: 18px; color:var(--muted); font-size:.92rem; }
-    @media (max-width: 760px) {
-      body { padding: 10px; }
-      .page, .hero { padding: 18px; }
-      .layout-2, .stat-row { grid-template-columns: 1fr; }
-      .modal-card { padding:18px; }
+    .choice-card,.section-card{padding:24px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease}
+    .choice-card:hover,.section-card:hover,.option:hover,.btn:hover{transform:translateY(-2px)}
+    .choice-card h3,.section-card h3{margin:0 0 10px;font-size:1.3rem}
+    .choice-card p,.section-card p,.mini,.sub{margin:0;color:var(--muted);line-height:1.55}
+    .choice-card .pill,.section-card .pill,.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#edf2ff;color:#355cc8;font-size:.8rem;font-weight:800;margin-bottom:12px}
+    .choice-card .features{margin-top:16px;display:grid;gap:8px;color:#37507b;font-weight:700;font-size:.95rem}
+    .top-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+    .section-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+    .intro-card{padding:24px;margin-bottom:18px}
+    .intro-card h2{margin:0 0 8px;font-size:1.55rem}
+    .intro-card p{margin:0;color:var(--muted);line-height:1.6}
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .stat{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
+    .stat .label{font-size:.92rem;font-weight:700;color:var(--muted)}
+    .stat .value{margin-top:6px;font-size:1.85rem;font-weight:900}
+    .value.good{color:var(--good)} .value.bad{color:var(--bad)} .value.warn{color:var(--warn)}
+    .meter{height:10px;border-radius:999px;background:#e8eef8;overflow:hidden;margin-bottom:18px}
+    .meter > div{height:100%;width:0;background:linear-gradient(90deg,#1ad579,#74ff84);transition:width .3s ease}
+    .layout-2{display:grid;grid-template-columns:1.15fr .9fr;gap:18px}
+    .passage-card,.question-card,.writing-card,.speaking-card,.listening-card{padding:22px}
+    .question-title{margin:0 0 8px;font-size:1.32rem}
+    .question-subtitle{margin:0 0 16px;color:var(--muted)}
+    .passage{white-space:pre-wrap;line-height:1.72;color:#30405f}
+    .options{display:grid;gap:12px;margin-top:16px}
+    .option{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px 16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .14s ease}
+    .option.correct{background:#e8fff3;border-color:#85e3b1}
+    .option.wrong{background:#fff0f3;border-color:#ffa1ac}
+    .option.locked{pointer-events:none}
+    .prompt-box{background:var(--card-2);border:1px solid var(--line);border-radius:18px;padding:16px;line-height:1.65}
+    textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:18px;padding:16px;font:inherit;line-height:1.6;resize:vertical;margin-top:16px}
+    .checklist{display:grid;gap:10px;margin-top:16px}
+    .checkline{display:flex;gap:10px;align-items:flex-start;background:var(--card-2);border:1px solid var(--line);padding:12px 14px;border-radius:14px}
+    .listening-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .result-card{padding:24px}
+    .result-banner{text-align:center;padding:28px 18px;border-radius:22px;color:#fff;margin-bottom:20px}
+    .result-banner.completed{background:linear-gradient(90deg,#426bff,#875dff)}
+    .result-banner.perfect{background:linear-gradient(90deg,#10c973,#41d36b)}
+    .scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+    .score-box{border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;background:#fff}
+    .score-box .big{font-size:2rem;font-weight:900;margin-top:8px}
+    .feedback-note{margin-top:18px;color:var(--muted);line-height:1.6}
+    .modal{position:fixed;inset:0;background:rgba(12,19,40,.58);display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}
+    .modal-card{width:min(760px,100%);background:#fff;border-radius:28px;padding:24px;box-shadow:var(--shadow)}
+    .modal-card h2{margin:0 0 8px;font-size:clamp(1.85rem,4vw,2.85rem);text-align:center;color:#5a72ea}
+    .feedback-box{background:#f5f7fc;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px}
+    .footer-note{margin-top:18px;color:var(--muted);font-size:.93rem;line-height:1.6}
+    @media (max-width: 820px){
+      .dual-grid,.layout-2,.stat-row{grid-template-columns:1fr}
+      .page,.hero{padding:18px}
+      body{padding:8px}
     }
   </style>
 </head>
 <body>
-  <div class="shell">
+  <div class="app">
     <section class="hero">
       <h1>CELI B2 Trainer</h1>
-      <p>Simulatore PWA originale ispirato alla struttura del CELI 3 / livello B2: lettura, ascolto, competenza linguistica, scrittura e orale.</p>
-      <div class="bar-wrap"><div id="hero-progress" class="bar"></div></div>
+      <p>Allenati con un simulatore originale ispirato al CELI B2. Scegli una simulazione completa oppure pratica una sezione specifica tutte le volte che vuoi.</p>
+      <div class="hero-progress"><div id="hero-progress-bar"></div></div>
     </section>
 
     <main class="page">
-      <section id="home-screen">
-        <div class="top-actions">
-          <button class="btn" data-action="start-full">Simulazione completa</button>
-          <button class="btn secondary" data-action="show-modes">Pratica per sezione</button>
+      <section id="landing-screen">
+        <div class="landing">
+          <article class="landing-intro">
+            <h2>Una home più pulita, un allenamento più serio</h2>
+            <p>Questa V2 parte da due soli ingressi. Dentro trovi un flusso più ordinato, letture più dense, competenza linguistica più curata e un’esperienza più vicina a un vero simulatore che a un semplice quiz.</p>
+          </article>
+          <div class="dual-grid">
+            <article class="choice-card" data-action="open-full-intro">
+              <span class="pill">Modalità esame</span>
+              <h3>Simulazione completa</h3>
+              <p>Affronta le sezioni in ordine con timer, progressione continua e risultati finali per abilità.</p>
+              <div class="features">
+                <div>• Lettura, lingua, ascolto, scrittura e orale</div>
+                <div>• Timer attivo in ogni sezione</div>
+                <div>• Report finale strutturato</div>
+              </div>
+            </article>
+            <article class="choice-card" data-action="open-practice">
+              <span class="pill">Modalità allenamento</span>
+              <h3>Pratica</h3>
+              <p>Entra nella sezione che ti serve, ricevi feedback immediato e ripeti quante volte vuoi.</p>
+              <div class="features">
+                <div>• Accesso diretto per sezione</div>
+                <div>• Spiegazioni dopo ogni risposta</div>
+                <div>• Ideale per ripetizione mirata</div>
+              </div>
+            </article>
+          </div>
         </div>
-        <div class="grid cards" id="overview-cards"></div>
-        <p class="footer-note">Questa è una versione 1. Il contenuto è originale ma progettato per farti allenare con tempi, pressione e tipi di compito simili a un B2.</p>
       </section>
 
-      <section id="mode-screen" class="hidden">
+      <section id="full-intro-screen" class="hidden">
         <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
-        <div class="grid cards" id="mode-cards"></div>
+        <article class="intro-card">
+          <h2>Simulazione completa</h2>
+          <p>Il simulatore ti guiderà attraverso Lettura, Competenza linguistica, Ascolto, Produzione scritta e Produzione orale. In questa modalità non c’è feedback dopo ogni risposta: riceverai il report alla fine, proprio per allenare concentrazione e gestione del tempo.</p>
+          <div class="top-actions" style="margin-top:18px">
+            <button class="btn" data-action="start-full">Inizia simulazione</button>
+          </div>
+          <div class="footer-note">Nota: il contenuto è originale e ispirato al livello B2, non è una riproduzione ufficiale del CELI.</div>
+        </article>
+      </section>
+
+      <section id="practice-screen" class="hidden">
+        <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
+        <article class="intro-card">
+          <h2>Pratica per sezione</h2>
+          <p>Scegli dove allenarti. In questa modalità ricevi feedback immediato nelle parti oggettive e puoi ripetere una sezione specifica senza rifare tutto il percorso.</p>
+        </article>
+        <div class="section-grid" id="practice-grid"></div>
       </section>
 
       <section id="exam-screen" class="hidden">
         <div class="stat-row">
           <div class="stat"><div class="label">Sezione</div><div id="stat-section" class="value">—</div></div>
-          <div class="stat"><div class="label">Timer</div><div id="stat-timer" class="value gold">00:00</div></div>
+          <div class="stat"><div class="label">Timer</div><div id="stat-timer" class="value warn">00:00</div></div>
           <div class="stat"><div class="label">Progresso</div><div id="stat-progress" class="value">0/0</div></div>
           <div class="stat"><div class="label">Punti</div><div id="stat-score" class="value good">0</div></div>
         </div>
-        <div class="meter"><div id="section-progress"></div></div>
+        <div class="meter"><div id="section-progress-bar"></div></div>
         <div class="top-actions">
-          <button class="btn secondary" data-action="back-sections">← Sezioni</button>
-          <button class="btn" id="next-btn" disabled>Avanti</button>
+          <button class="btn secondary" id="back-context-btn">← Indietro</button>
+          <button class="btn hidden" id="next-btn">Avanti</button>
         </div>
         <div id="exam-content"></div>
       </section>
@@ -179,11 +186,11 @@
           <button class="btn secondary" data-action="go-home">← Home</button>
           <button class="btn" data-action="restart-current">Ripeti</button>
         </div>
-        <div class="result-card">
+        <article class="result-card">
           <div id="result-banner" class="result-banner completed"></div>
           <div class="scores" id="result-scores"></div>
-          <div id="result-notes" class="footer-note"></div>
-        </div>
+          <div id="result-notes" class="feedback-note"></div>
+        </article>
       </section>
     </main>
   </div>
@@ -204,476 +211,545 @@
           key: 'reading',
           title: 'Comprensione della lettura',
           short: 'Lettura',
-          time: 14 * 60,
-          description: 'Leggi un testo informativo e rispondi a domande di comprensione globale e dettagliata.',
+          time: 16 * 60,
+          description: 'Due testi con domande di comprensione globale, dettaglio e inferenza.',
           type: 'reading',
-          passageTitle: 'Una biblioteca di quartiere che rinasce',
-          passage: `Negli ultimi anni molte biblioteche di quartiere hanno cercato di reinventarsi. Non basta più offrire scaffali ordinati e silenzio assoluto: oggi i lettori chiedono spazi in cui poter studiare, partecipare a incontri e sentirsi parte di una comunità.
+          blocks: [
+            {
+              title: 'Il coworking di quartiere',
+              passage: `Negli ultimi anni, in molte città italiane, sono nati piccoli spazi di coworking di quartiere. A differenza degli uffici condivisi nati nei centri finanziari, questi ambienti cercano di attirare lavoratori autonomi, studenti e piccoli imprenditori che preferiscono restare vicino a casa.
 
-A Bologna, per esempio, una piccola biblioteca comunale che rischiava di chiudere ha cambiato strategia. Ha allungato l’orario serale, ha organizzato gruppi di lettura intergenerazionali e ha trasformato una sala inutilizzata in uno spazio per laboratori di scrittura. Il risultato non è stato immediato, ma dopo alcuni mesi il numero degli iscritti è aumentato sensibilmente.
+Il vantaggio principale non è soltanto economico. Chi li frequenta racconta che lavorare in un luogo del genere aiuta a separare meglio la vita privata da quella professionale. Inoltre, la vicinanza facilita la creazione di reti locali: grafici, traduttori, consulenti e artigiani finiscono per conoscersi e collaborare.
 
-Secondo la direttrice, il successo non dipende soltanto dall’offerta culturale. Le persone tornano quando percepiscono che la biblioteca risponde a bisogni reali: un posto tranquillo per preparare un concorso, un’attività gratuita per i figli, oppure semplicemente un ambiente accogliente dove fermarsi dopo il lavoro.
+Secondo alcuni urbanisti, questi spazi possono avere anche un effetto sociale più ampio. Quando un locale rimane aperto tutto il giorno, porta movimento in strade che altrimenti resterebbero vuote. Però non mancano le critiche: alcuni residenti sostengono che il quartiere rischi di cambiare troppo rapidamente e di perdere la propria identità originale.`,
+              questions: [
+                { q:'Qual è l’idea centrale del testo?', options:['I coworking di quartiere sono identici agli uffici tradizionali.','I coworking di quartiere offrono vantaggi professionali e sociali, ma sollevano anche qualche critica.','Gli urbanisti considerano inutili gli spazi condivisi.','I residenti sono tutti favorevoli ai cambiamenti del quartiere.'], answer:1, explanation:'Il testo presenta benefici pratici e sociali dei coworking, ma conclude ricordando anche le perplessità di alcuni residenti.', tip:'Nel B2 cerca l’equilibrio del testo: tesi principale + eventuali riserve finali.' },
+                { q:'Perché molte persone scelgono questi spazi?', options:['Perché costano sempre meno del lavoro da casa.','Perché permettono di restare vicini a casa e creare contatti utili.','Perché offrono alloggio temporaneo.','Perché sono obbligatori per i liberi professionisti.'], answer:1, explanation:'Il testo cita sia la vicinanza sia la possibilità di creare reti locali e collaborazioni.', tip:'Quando un testo elenca due motivi consecutivi, spesso entrambi rientrano nella risposta corretta.' },
+                { q:'Che cosa temono alcuni residenti?', options:['Che i coworking chiudano troppo presto.','Che il quartiere perda la sua identità originale.','Che diminuiscano i servizi pubblici.','Che aumenti il traffico turistico internazionale.'], answer:1, explanation:'Nell’ultima frase si dice che il quartiere potrebbe cambiare troppo rapidamente e perdere la propria identità.', tip:'Le domande sulle critiche si trovano spesso nel paragrafo conclusivo.' }
+              ]
+            },
+            {
+              title: 'Una biblioteca che si trasforma',
+              passage: `Molte biblioteche pubbliche hanno capito che non basta custodire libri. Per rimanere centrali nella vita di una città devono rispondere a bisogni nuovi, offrendo spazi di studio, attività culturali e servizi utili a fasce diverse della popolazione.
 
-Naturalmente non mancano le difficoltà. Servono fondi, personale formato e una comunicazione efficace. Tuttavia, l’esperienza bolognese dimostra che anche una struttura tradizionale può recuperare centralità se riesce ad adattarsi ai cambiamenti sociali senza perdere la propria funzione educativa.`,
-          questions: [
-            { q: 'Qual è l’idea principale del testo?', options: ['Le biblioteche moderne devono eliminare i libri cartacei.', 'Le biblioteche di quartiere possono tornare utili se si adattano ai bisogni attuali.', 'Le biblioteche funzionano soltanto se restano luoghi silenziosi.', 'Le attività culturali non influenzano il numero degli iscritti.'], answer: 1, explanation: 'Il testo sostiene che una biblioteca può recuperare importanza adattandosi ai cambiamenti sociali e ai bisogni concreti delle persone.', tip: 'Nel B2 cerca sempre la tesi generale del testo, non un dettaglio isolato.' },
-            { q: 'Che cosa ha fatto la biblioteca di Bologna?', options: ['Ha ridotto gli orari per risparmiare.', 'Ha trasformato tutte le sale in uffici.', 'Ha introdotto nuove attività e spazi per il pubblico.', 'Ha chiesto ai lettori di pagare di più.'], answer: 2, explanation: 'La biblioteca ha allungato gli orari, creato gruppi di lettura e aperto laboratori di scrittura.', tip: 'Per domande di dettaglio, individua nel testo i verbi d’azione che descrivono i cambiamenti.' },
-            { q: 'Secondo la direttrice, perché le persone tornano?', options: ['Perché la biblioteca è gratuita e basta.', 'Perché trovano risposte a bisogni reali.', 'Perché preferiscono evitare i libri digitali.', 'Perché sono obbligate dai corsi universitari.'], answer: 1, explanation: 'La direttrice dice esplicitamente che il ritorno del pubblico dipende dalla capacità di rispondere a bisogni reali.', tip: 'Le frasi introdotte da “secondo” spesso contengono opinioni chiave del testo.' },
-            { q: 'Quale difficoltà viene citata?', options: ['L’eccesso di turisti.', 'La mancanza di connessione internet.', 'La difficoltà di trovare fondi e personale formato.', 'Il rifiuto totale dei residenti.'], answer: 2, explanation: 'Nell’ultimo paragrafo si parla di fondi, personale formato e comunicazione efficace.', tip: 'Nelle domande finali guarda spesso l’ultimo paragrafo: lì si riassumono ostacoli e conclusioni.' }
-          ]
-        },
-        listening: {
-          key: 'listening',
-          title: 'Comprensione dell’ascolto',
-          short: 'Ascolto',
-          time: 10 * 60,
-          description: 'Ascolta un breve annuncio e rispondi a domande di comprensione.',
-          type: 'listening',
-          transcript: `Buonasera a tutti. Vi ricordiamo che da lunedì prossimo il museo civico prolungherà l’orario di apertura fino alle venti nei giorni di giovedì e venerdì. La decisione è stata presa per permettere anche a chi lavora di visitare la nuova mostra fotografica dedicata ai paesaggi urbani italiani. Inoltre, per i residenti sotto i venticinque anni, l’ingresso del venerdì sera costerà la metà. Sul sito del museo è già possibile prenotare una visita guidata, ma i posti disponibili sono limitati.`,
-          questions: [
-            { q: 'Da quando cambia l’orario del museo?', options: ['Da domani', 'Da lunedì prossimo', 'Dal mese prossimo', 'Dal prossimo venerdì'], answer: 1, explanation: 'Nel messaggio si dice chiaramente “da lunedì prossimo”.', tip: 'Nell’ascolto, date e avverbi di tempo sono spesso informazioni ad alta probabilità di domanda.' },
-            { q: 'Perché il museo prolunga l’orario?', options: ['Per ospitare una conferenza internazionale', 'Per dare più tempo ai lavoratori di visitare la mostra', 'Perché il personale ha chiesto turni più lunghi', 'Perché il weekend resterà chiuso'], answer: 1, explanation: 'L’annuncio spiega che il cambiamento è pensato anche per chi lavora.', tip: 'Ascolta con attenzione le frasi introdotte da “per” o “per permettere”: spesso spiegano la ragione.' },
-            { q: 'Chi ha diritto alla riduzione del venerdì sera?', options: ['Tutti i turisti', 'I visitatori sopra i 25 anni', 'I residenti sotto i 25 anni', 'Gli studenti universitari di qualsiasi città'], answer: 2, explanation: 'La riduzione riguarda i residenti sotto i venticinque anni.', tip: 'Le condizioni doppie come età + residenza sono frequenti nei compiti d’ascolto.' }
+In una cittadina emiliana, per esempio, la biblioteca comunale ha allungato l’orario serale, ha creato un doposcuola gratuito e ha organizzato incontri dedicati a chi sta cercando lavoro. Il numero di visitatori è cresciuto lentamente, ma in modo costante.
+
+La direttrice spiega che il punto decisivo non è riempire il calendario di eventi, bensì ascoltare il quartiere. Un laboratorio di scrittura può funzionare molto bene in una zona, mentre altrove serve soprattutto un luogo tranquillo per studiare o ricevere aiuto nella compilazione di documenti digitali.
+
+Naturalmente tutto questo richiede investimenti, personale competente e continuità. Tuttavia, secondo molti osservatori, la biblioteca moderna resta uno dei pochi luoghi realmente aperti a tutti.`,
+              questions: [
+                { q:'Secondo la direttrice, che cosa conta davvero?', options:['Aumentare il numero degli eventi senza eccezioni.','Imitare i servizi di tutte le altre biblioteche.','Capire quali bisogni concreti ha il quartiere.','Ridurre le attività per spendere meno.'], answer:2, explanation:'La direttrice dice chiaramente che il punto decisivo è ascoltare il quartiere e adattare i servizi ai bisogni reali.', tip:'Quando il testo riporta un’opinione diretta, è spesso un punto chiave da ricordare.' },
+                { q:'Quale affermazione è corretta?', options:['La crescita dei visitatori è stata immediata.','La biblioteca moderna viene descritta come uno spazio aperto a tutti.','Il doposcuola è stato eliminato dopo pochi mesi.','La biblioteca non offre più sale di studio.'], answer:1, explanation:'L’ultimo paragrafo sottolinea che la biblioteca moderna resta uno dei pochi luoghi aperti a tutti.', tip:'Per le domande vero/falso implicite, confronta ogni opzione con il testo e scarta quelle troppo assolute.' },
+                { q:'Quale ostacolo viene menzionato?', options:['La mancanza di libri stranieri.','La difficoltà di convincere gli studenti universitari.','Il bisogno di investimenti, competenze e continuità.','L’opposizione del comune a ogni cambiamento.'], answer:2, explanation:'Nel finale si cita la necessità di investimenti, personale competente e continuità.', tip:'Gli ostacoli operativi compaiono spesso nella chiusura del testo.' }
+              ]
+            }
           ]
         },
         language: {
           key: 'language',
           title: 'Competenza linguistica',
           short: 'Lingua',
-          time: 12 * 60,
-          description: 'Completa frasi e scegli la forma più adatta in contesto B2.',
+          time: 14 * 60,
+          description: 'Cloze, scelta multipla e lessico in contesto per un allenamento B2 più serio.',
           type: 'language',
           questions: [
-            { q: 'Se avessi più tempo, ______ un corso di scrittura creativa.', options: ['frequenterei', 'frequentavo', 'avrei frequentato', 'frequenterò'], answer: 0, explanation: 'È un periodo ipotetico della possibilità: se avessi… frequenterei.', tip: 'Nel B2 devi riconoscere bene le strutture ipotetiche e i loro tempi verbali.' },
-            { q: 'Nonostante ______ tardi, siamo riusciti a entrare in sala.', options: ['arriviamo', 'siamo arrivati', 'arrivando', 'arriveremmo'], answer: 1, explanation: 'Dopo “nonostante” qui serve una forma che esprima il fatto compiuto: “siamo arrivati tardi”.', tip: 'Controlla sempre se il connettivo richiede un nome, un infinito o una frase completa.' },
-            { q: 'Il direttore ha insistito perché il progetto ______ rivisto entro venerdì.', options: ['viene', 'venisse', 'veniva', 'verrà'], answer: 1, explanation: 'Dopo “ha insistito perché” si usa il congiuntivo imperfetto in dipendenza da un verbo al passato.', tip: 'Molte prove B2 testano il congiuntivo in frasi subordinate legate a volontà, opinione o dubbio.' },
-            { q: 'È una proposta interessante, però non mi sembra molto ______ dal punto di vista economico.', options: ['sostenibile', 'sostenuta', 'sostenente', 'sostenitiva'], answer: 0, explanation: 'L’aggettivo corretto e naturale è “sostenibile”.', tip: 'Nella competenza linguistica B2 conta molto anche la collocazione lessicale naturale.' }
+            { q:'Se avessi saputo della riunione, ci ______ anche io.', options:['verrei','sarei venuto','vengo','venissi'], answer:1, explanation:'È un periodo ipotetico dell’irrealtà nel passato: se avessi saputo… sarei venuto.', tip:'Riconosci subito se la frase parla di una condizione irreale nel passato.' },
+            { q:'Nonostante ______ molto stanco, ha finito il lavoro in serata.', options:['era','fosse','essere','sia'], answer:1, explanation:'Dopo “nonostante” con frase esplicita si usa il congiuntivo: fosse molto stanco.', tip:'I connettivi concessivi attivano spesso il congiuntivo.' },
+            { q:'Il direttore ha chiesto che il progetto ______ entro venerdì.', options:['viene rivisto','venisse rivisto','sarà rivisto','rivisto'], answer:1, explanation:'Dopo “ha chiesto che” serve il congiuntivo imperfetto in dipendenza da un verbo al passato.', tip:'Volontà, richiesta e necessità richiedono attenzione al modo verbale.' },
+            { q:'Questa soluzione è interessante, ma economicamente poco ______.', options:['sostenibile','sostenuta','sostenente','sostenitiva'], answer:0, explanation:'L’aggettivo corretto e naturale è “sostenibile”.', tip:'Nel B2 conta molto la naturalezza lessicale, non solo la grammatica.' },
+            { q:'Il relatore ha parlato in modo così chiaro che tutti sono riusciti a ______ il punto centrale.', options:['afferrare','prendere da','tirare','portare'], answer:0, explanation:'“Afferrare il punto centrale” è una collocazione naturale nel significato di capire bene.', tip:'Le collocazioni sono uno dei segnali più importanti del livello intermedio-alto.' },
+            { q:'Non ero convinto all’inizio; ______, dopo aver visto i risultati, ho cambiato idea.', options:['sebbene','inoltre','tuttavia','perciò'], answer:2, explanation:'“Tuttavia” introduce un contrasto logico con la frase precedente.', tip:'Scegli il connettore in base alla relazione logica, non per semplice abitudine.' }
+          ]
+        },
+        listening: {
+          key:'listening',
+          title:'Comprensione dell’ascolto',
+          short:'Ascolto',
+          time:11*60,
+          description:'Breve annuncio con ascolto guidato e domande di comprensione.',
+          type:'listening',
+          transcript:`Buonasera a tutti. Vi informiamo che da martedì prossimo il museo civico prolungherà l’orario di apertura fino alle venti nei giorni di giovedì e venerdì. La decisione è stata presa per permettere anche a chi lavora di visitare la nuova mostra fotografica dedicata ai paesaggi urbani italiani. Inoltre, per i residenti sotto i venticinque anni, l’ingresso del venerdì sera costerà la metà. Sul sito del museo è già possibile prenotare una visita guidata, ma i posti disponibili sono limitati.`,
+          questions:[
+            { q:'Quando entra in vigore il nuovo orario?', options:['Da domani','Da martedì prossimo','Dal mese prossimo','Dal prossimo venerdì'], answer:1, explanation:'L’annuncio dice chiaramente “da martedì prossimo”.', tip:'Le informazioni temporali sono spesso decisive nelle prove d’ascolto.' },
+            { q:'Perché il museo prolunga l’orario?', options:['Per ospitare un concerto serale','Per facilitare la visita anche a chi lavora','Per ridurre il numero di prenotazioni','Per chiudere prima nel weekend'], answer:1, explanation:'Il motivo esplicito è permettere anche a chi lavora di visitare la mostra.', tip:'Ascolta con attenzione le frasi introdotte da “per” o “per permettere”.' },
+            { q:'Chi ha diritto alla riduzione?', options:['Tutti i visitatori','I turisti stranieri','I residenti sotto i 25 anni','Gli studenti universitari di tutta Italia'], answer:2, explanation:'La riduzione del venerdì sera è per i residenti sotto i venticinque anni.', tip:'Le condizioni doppie, come residenza + età, compaiono spesso.' }
           ]
         },
         writing: {
-          key: 'writing',
-          title: 'Produzione scritta',
-          short: 'Scrittura',
-          time: 18 * 60,
-          description: 'Scrivi una risposta argomentativa breve su un tema quotidiano e sociale.',
-          type: 'writing',
-          prompt: `Hai letto in un giornale locale un articolo che sostiene che lavorare sempre da casa migliori automaticamente la qualità della vita.
+          key:'writing',
+          title:'Produzione scritta',
+          short:'Scrittura',
+          time:18*60,
+          description:'Compito argomentativo con checklist e conteggio parole.',
+          type:'writing',
+          prompt:`Hai letto un articolo che sostiene che lavorare sempre da casa migliori automaticamente la qualità della vita.
 
-Scrivi un testo di circa 180–220 parole in cui:
+Scrivi un testo di 180–220 parole in cui:
 - riassumi la posizione dell’articolo;
 - esprimi il tuo punto di vista;
 - presenti almeno due vantaggi e due possibili svantaggi;
-- concludi con una riflessione personale.
-
-Usa un registro chiaro e ben organizzato.`
+- concludi con una riflessione personale.`
         },
         speaking: {
-          key: 'speaking',
-          title: 'Produzione orale',
-          short: 'Orale',
-          time: 8 * 60,
-          description: 'Allenati con un prompt orale e una griglia di autovalutazione.',
-          type: 'speaking',
-          prep: 60,
-          speak: 120,
-          prompt: `Parla di un’esperienza in cui hai dovuto adattarti a una situazione nuova: un trasferimento, un nuovo lavoro, un corso, un cambiamento importante nella tua routine.
+          key:'speaking',
+          title:'Produzione orale',
+          short:'Orale',
+          time:8*60,
+          description:'Prompt orale con fase di preparazione e autovalutazione.',
+          type:'speaking',
+          prompt:`Parla di un’esperienza in cui hai dovuto adattarti a una situazione nuova: un trasferimento, un nuovo lavoro, un corso o un cambiamento importante nella tua routine.
 
 Nel tuo intervento:
 - descrivi il contesto;
-- spiega quali difficoltà hai incontrato;
+- spiega le difficoltà incontrate;
 - racconta come le hai affrontate;
-- valuta che cosa hai imparato da quell’esperienza.`
+- valuta che cosa hai imparato.`
         }
       },
       state: {
-        currentSection: null,
-        mode: null,
-        queue: [],
-        queueIndex: 0,
-        score: 0,
-        answered: false,
-        pendingNext: null,
-        sectionScores: {},
-        timerRemaining: 0,
-        timerId: null,
-        writingDraft: '',
-        speakingNotes: '',
-        speakingPhase: 'prep'
+        screen:'landing',
+        mode:null,
+        currentSection:null,
+        queue:[],
+        queueIndex:0,
+        currentQuestionIndex:0,
+        readingBlockIndex:0,
+        score:0,
+        sectionScores:{},
+        timerRemaining:0,
+        timerId:null,
+        pendingNext:null,
+        answered:false,
+        writingDraft:'',
+        speakingNotes:'',
+        speakingPhase:'prep',
+        listenCount:0,
+        lastEntry:'practice'
       }
     };
 
-    const overview = [
-      ['Comprensione della lettura', 'Testo + domande a scelta multipla'],
-      ['Comprensione dell’ascolto', 'Ascolto guidato con trascrizione attivabile'],
-      ['Competenza linguistica', 'Grammatica, lessico e strutture B2'],
-      ['Produzione scritta', 'Prompt argomentativo con checklist'],
-      ['Produzione orale', 'Preparazione, tempo di risposta e autovalutazione']
-    ];
+    const $ = id => document.getElementById(id);
 
-    const byId = (id) => document.getElementById(id);
-
-    function init() {
-      renderOverview();
-      renderModes();
-      bindGlobalActions();
-      showScreen('home-screen');
+    function init(){
+      renderPracticeCards();
+      bindActions();
+      showScreen('landing-screen');
       updateHeroProgress(0);
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+      hideFeedback();
+      if('serviceWorker' in navigator){
+        window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
       }
     }
 
-    function renderOverview() {
-      const root = byId('overview-cards');
-      root.innerHTML = overview.map(([title, desc]) => `
-        <article class="section-card">
-          <h3>${title}</h3>
-          <p>${desc}</p>
+    function bindActions(){
+      document.querySelector('[data-action="open-full-intro"]').addEventListener('click',()=>showScreen('full-intro-screen'));
+      document.querySelector('[data-action="open-practice"]').addEventListener('click',()=>showScreen('practice-screen'));
+      document.querySelector('[data-action="start-full"]').addEventListener('click',startFullExam);
+      document.querySelectorAll('[data-action="go-home"]').forEach(btn=>btn.addEventListener('click',()=>{stopTimer(); showScreen('landing-screen'); updateHeroProgress(0);}));
+      document.querySelector('[data-action="restart-current"]').addEventListener('click',()=>{
+        if(app.state.currentSection){ startSection(app.state.currentSection.key, app.state.mode); }
+      });
+      $('feedback-next').addEventListener('click',closeFeedbackAndContinue);
+      $('back-context-btn').addEventListener('click',handleBackFromExam);
+    }
+
+    function renderPracticeCards(){
+      $('practice-grid').innerHTML = Object.values(app.sections).map(section=>`
+        <article class="section-card" data-section="${section.key}">
+          <span class="pill">Tempo guida ${formatTime(section.time)}</span>
+          <h3>${section.title}</h3>
+          <p>${section.description}</p>
         </article>
       `).join('');
+      document.querySelectorAll('[data-section]').forEach(card=>card.addEventListener('click',()=>startSection(card.dataset.section,'practice')));
     }
 
-    function renderModes() {
-      const root = byId('mode-cards');
-      root.innerHTML = Object.values(app.sections).map(sec => `
-        <article class="mode-card" data-section="${sec.key}">
-          <h3>${sec.title}</h3>
-          <p>${sec.description}</p>
-          <p class="tiny" style="margin-top:10px">Tempo guida: ${formatTime(sec.time)}</p>
-        </article>
-      `).join('');
-      root.querySelectorAll('[data-section]').forEach(card => {
-        card.addEventListener('click', () => startSection(card.dataset.section, 'practice'));
-      });
+    function showScreen(id){
+      ['landing-screen','full-intro-screen','practice-screen','exam-screen','results-screen'].forEach(s=>$(s).classList.add('hidden'));
+      $(id).classList.remove('hidden');
     }
 
-    function bindGlobalActions() {
-      document.querySelectorAll('[data-action="show-modes"]').forEach(b => b.onclick = () => showScreen('mode-screen'));
-      document.querySelectorAll('[data-action="go-home"]').forEach(b => b.onclick = () => { stopTimer(); showScreen('home-screen'); });
-      document.querySelectorAll('[data-action="back-sections"]').forEach(b => b.onclick = () => { stopTimer(); showScreen('mode-screen'); });
-      document.querySelectorAll('[data-action="start-full"]').forEach(b => b.onclick = () => startFullExam());
-      document.querySelectorAll('[data-action="restart-current"]').forEach(b => b.onclick = () => {
-        if (app.state.currentSection) startSection(app.state.currentSection.key, app.state.mode);
-      });
-      byId('feedback-next').addEventListener('click', closeFeedbackAndContinue);
-      byId('next-btn').addEventListener('click', handleManualNext);
+    function startFullExam(){
+      app.state.mode='full';
+      app.state.lastEntry='full';
+      app.state.queue=['reading','language','listening','writing','speaking'];
+      app.state.queueIndex=0;
+      app.state.sectionScores={};
+      startSection(app.state.queue[0],'full');
     }
 
-    function showScreen(id) {
-      ['home-screen', 'mode-screen', 'exam-screen', 'results-screen'].forEach(s => byId(s).classList.add('hidden'));
-      byId(id).classList.remove('hidden');
-    }
-
-    function startFullExam() {
-      app.state.mode = 'full';
-      app.state.queue = ['reading', 'listening', 'language', 'writing', 'speaking'];
-      app.state.queueIndex = 0;
-      app.state.sectionScores = {};
-      startSection(app.state.queue[0], 'full');
-    }
-
-    function startSection(sectionKey, mode) {
+    function startSection(sectionKey, mode='practice'){
       stopTimer();
       const section = app.sections[sectionKey];
       app.state.currentSection = section;
       app.state.mode = mode;
       app.state.score = 0;
-      app.state.answered = false;
+      app.state.currentQuestionIndex = 0;
+      app.state.readingBlockIndex = 0;
+      app.state.listenCount = 0;
       app.state.pendingNext = null;
-      app.state.timerRemaining = section.time;
+      app.state.answered = false;
       app.state.writingDraft = localStorage.getItem('celi-writing-draft') || '';
       app.state.speakingNotes = localStorage.getItem('celi-speaking-notes') || '';
       app.state.speakingPhase = 'prep';
-      updateHeader(section.short, 0, getTotalItems(section), 0);
-      renderSection(section);
+      app.state.timerRemaining = section.time;
+      if(mode === 'practice') app.state.lastEntry='practice';
+      updateHeader(section.short,0,getTotalItems(section),0);
+      renderSection();
       showScreen('exam-screen');
-      updateHeroProgress(25);
+      updateHeroProgress(20);
       startTimer();
     }
 
-    function getTotalItems(section) {
-      if (section.questions) return section.questions.length;
+    function getTotalItems(section){
+      if(section.type === 'reading') return section.blocks.reduce((sum,b)=>sum + b.questions.length,0);
+      if(section.questions) return section.questions.length;
       return 1;
     }
 
-    function updateHeader(sectionName, progress, total, score) {
-      byId('stat-section').textContent = sectionName;
-      byId('stat-progress').textContent = `${progress}/${total}`;
-      byId('stat-score').textContent = score;
-      byId('section-progress').style.width = total ? `${(progress/total)*100}%` : '0%';
+    function updateHeader(sectionName, progress, total, score){
+      $('stat-section').textContent = sectionName;
+      $('stat-progress').textContent = `${progress}/${total}`;
+      $('stat-score').textContent = score;
+      $('section-progress-bar').style.width = total ? `${(progress/total)*100}%` : '0%';
     }
 
-    function renderSection(section) {
-      const root = byId('exam-content');
-      byId('next-btn').disabled = true;
-      if (section.type === 'reading') root.innerHTML = renderReading(section, 0);
-      if (section.type === 'listening') root.innerHTML = renderListening(section, 0);
-      if (section.type === 'language') root.innerHTML = renderLanguage(section, 0);
-      if (section.type === 'writing') root.innerHTML = renderWriting(section);
-      if (section.type === 'speaking') root.innerHTML = renderSpeaking(section);
-      bindSectionEvents(section);
+    function renderSection(){
+      const section = app.state.currentSection;
+      const root = $('exam-content');
+      $('next-btn').classList.add('hidden');
+      $('next-btn').disabled = true;
+      if(section.type === 'reading') root.innerHTML = renderReading();
+      if(section.type === 'language') root.innerHTML = renderLanguage();
+      if(section.type === 'listening') root.innerHTML = renderListening();
+      if(section.type === 'writing') root.innerHTML = renderWriting();
+      if(section.type === 'speaking') root.innerHTML = renderSpeaking();
+      bindSectionEvents();
     }
 
-    function renderReading(section, idx) {
-      const q = section.questions[idx];
+    function renderReading(){
+      const section = app.state.currentSection;
+      const block = section.blocks[app.state.readingBlockIndex];
+      const q = block.questions[app.state.currentQuestionIndex];
+      const questionNumber = readingQuestionGlobalIndex() + 1;
+      const total = getTotalItems(section);
       return `
         <div class="layout-2">
           <article class="passage-card">
-            <div class="tag">Testo</div>
-            <h3 class="question-title">${section.passageTitle}</h3>
-            <div class="passage">${section.passage}</div>
+            <span class="tag">Testo ${app.state.readingBlockIndex + 1}</span>
+            <h3 class="question-title">${block.title}</h3>
+            <div class="passage">${block.passage}</div>
           </article>
           <article class="question-card">
-            <div class="tag">Domanda ${idx + 1} / ${section.questions.length}</div>
+            <span class="tag">Domanda ${questionNumber} / ${total}</span>
             <h3 class="question-title">${q.q}</h3>
-            <p class="question-subtitle">Scegli l’alternativa più adatta.</p>
-            <div class="options">
-              ${q.options.map((opt, i) => `<button class="option" data-answer="${i}">${opt}</button>`).join('')}
-            </div>
+            <p class="question-subtitle">Leggi bene il testo e scegli l’alternativa più adatta.</p>
+            <div class="options">${q.options.map((opt,i)=>`<button class="option" data-answer="${i}">${opt}</button>`).join('')}</div>
           </article>
         </div>`;
     }
 
-    function renderListening(section, idx) {
-      const q = section.questions[idx];
-      return `
-        <article class="listening-card">
-          <div class="tag">Ascolto guidato</div>
-          <h3 class="question-title">Annuncio pubblico</h3>
-          <p class="question-subtitle">Premi play per ascoltare il testo. Puoi riascoltarlo una seconda volta.</p>
-          <div class="top-actions">
-            <button class="btn" id="listen-play">▶︎ Riproduci sintesi vocale</button>
-            <button class="btn secondary" id="listen-transcript">Mostra / Nascondi trascrizione</button>
-          </div>
-          <div id="transcript-box" class="prompt-box hidden" style="margin-bottom:18px">${section.transcript}</div>
-          <div class="tag">Domanda ${idx + 1} / ${section.questions.length}</div>
-          <h3 class="question-title">${q.q}</h3>
-          <div class="options">
-            ${q.options.map((opt, i) => `<button class="option" data-answer="${i}">${opt}</button>`).join('')}
-          </div>
-        </article>`;
-    }
-
-    function renderLanguage(section, idx) {
-      const q = section.questions[idx];
+    function renderLanguage(){
+      const section = app.state.currentSection;
+      const q = section.questions[app.state.currentQuestionIndex];
       return `
         <article class="question-card">
-          <div class="tag">Competenza linguistica</div>
+          <span class="tag">Competenza linguistica</span>
           <h3 class="question-title">${q.q}</h3>
-          <p class="question-subtitle">Osserva il contesto e scegli la forma più naturale.</p>
-          <div class="options">
-            ${q.options.map((opt, i) => `<button class="option" data-answer="${i}">${opt}</button>`).join('')}
-          </div>
+          <p class="question-subtitle">Scegli la soluzione grammaticalmente e lessicalmente più naturale.</p>
+          <div class="options">${q.options.map((opt,i)=>`<button class="option" data-answer="${i}">${opt}</button>`).join('')}</div>
         </article>`;
     }
 
-    function renderWriting(section) {
+    function renderListening(){
+      const section = app.state.currentSection;
+      const q = section.questions[app.state.currentQuestionIndex];
+      const listensLeft = app.state.mode === 'full' ? Math.max(0, 2 - app.state.listenCount) : 'libero';
+      return `
+        <article class="listening-card">
+          <span class="tag">Ascolto guidato</span>
+          <h3 class="question-title">Annuncio pubblico</h3>
+          <p class="question-subtitle">Ascolta con attenzione. ${app.state.mode === 'full' ? `Riproduzioni disponibili: ${listensLeft}` : 'In pratica puoi riascoltare liberamente.'}</p>
+          <div class="listening-tools">
+            <button class="btn" id="listen-play">▶︎ Riproduci</button>
+            <button class="btn secondary" id="listen-transcript">Mostra / Nascondi trascrizione</button>
+          </div>
+          <div id="transcript-box" class="prompt-box hidden" style="margin-bottom:16px">${section.transcript}</div>
+          <span class="tag">Domanda ${app.state.currentQuestionIndex + 1} / ${section.questions.length}</span>
+          <h3 class="question-title">${q.q}</h3>
+          <div class="options">${q.options.map((opt,i)=>`<button class="option" data-answer="${i}">${opt}</button>`).join('')}</div>
+        </article>`;
+    }
+
+    function renderWriting(){
       return `
         <article class="writing-card">
-          <div class="tag">Produzione scritta</div>
+          <span class="tag">Produzione scritta</span>
           <h3 class="question-title">Compito di scrittura</h3>
-          <div class="prompt-box">${section.prompt.replace(/\n/g,'<br>')}</div>
-          <div class="top-actions" style="margin-top:18px">
+          <div class="prompt-box">${app.state.currentSection.prompt.replace(/\n/g,'<br>')}</div>
+          <textarea id="writing-area" placeholder="Scrivi qui la tua risposta...">${escapeHtml(app.state.writingDraft)}</textarea>
+          <div class="top-actions" style="margin-top:16px">
             <button class="btn secondary" id="save-writing">Salva bozza</button>
             <button class="btn" id="finish-writing">Termina sezione</button>
           </div>
-          <textarea id="writing-area" placeholder="Scrivi qui la tua risposta...">${escapeHtml(app.state.writingDraft)}</textarea>
-          <div class="footer-note">Checklist B2: chiarezza, coesione, varietà lessicale, correttezza grammaticale, conclusione coerente.</div>
+          <div class="checklist">
+            <div class="checkline">• Hai riassunto la posizione iniziale in modo chiaro?</div>
+            <div class="checkline">• Hai espresso il tuo punto di vista con connettori adeguati?</div>
+            <div class="checkline">• Hai inserito almeno due vantaggi e due svantaggi?</div>
+            <div class="checkline">• Hai una conclusione coerente?</div>
+          </div>
+          <div class="footer-note">Il punteggio di questa demo assegna 1 punto se il testo ha una lunghezza sufficiente. In una versione futura si potrà aggiungere una rubrica più dettagliata.</div>
         </article>`;
     }
 
-    function renderSpeaking(section) {
+    function renderSpeaking(){
       return `
         <article class="speaking-card">
-          <div class="tag">Produzione orale</div>
+          <span class="tag">Produzione orale</span>
           <h3 class="question-title">Prompt orale</h3>
-          <div class="prompt-box">${section.prompt.replace(/\n/g,'<br>')}</div>
-          <div class="top-actions" style="margin-top:18px">
+          <div class="prompt-box">${app.state.currentSection.prompt.replace(/\n/g,'<br>')}</div>
+          <div class="top-actions" style="margin-top:16px">
             <button class="btn secondary" id="toggle-phase">Passa a: ${app.state.speakingPhase === 'prep' ? 'risposta' : 'preparazione'}</button>
             <button class="btn" id="finish-speaking">Termina sezione</button>
           </div>
           <div class="feedback-box">
             <strong>Fase attuale:</strong> <span id="phase-label">${app.state.speakingPhase === 'prep' ? 'Preparazione' : 'Risposta orale'}</span>
-            <div class="mini" style="margin-top:8px">Suggerimento: registra la tua voce con il telefono e poi autovalutati.</div>
+            <div class="sub" style="margin-top:8px">Suggerimento: prepara una scaletta breve, poi registra la tua voce con il telefono per autovalutarti.</div>
           </div>
           <textarea id="speaking-notes" placeholder="Appunti / scaletta orale...">${escapeHtml(app.state.speakingNotes)}</textarea>
-          <div class="footer-note">Autovalutazione: fluidità, organizzazione, ricchezza lessicale, precisione, capacità di sviluppare il tema.</div>
+          <div class="checklist">
+            <div class="checkline">• Contesto chiaro</div>
+            <div class="checkline">• Difficoltà spiegate bene</div>
+            <div class="checkline">• Strategie usate per affrontarle</div>
+            <div class="checkline">• Riflessione finale coerente</div>
+          </div>
         </article>`;
     }
 
-    function bindSectionEvents(section) {
-      if (section.type === 'reading' || section.type === 'language' || section.type === 'listening') bindObjectiveEvents(section);
-      if (section.type === 'listening') {
-        const play = byId('listen-play');
-        const transcript = byId('listen-transcript');
-        play?.addEventListener('click', () => playSpeech(section.transcript));
-        transcript?.addEventListener('click', () => byId('transcript-box').classList.toggle('hidden'));
+    function bindSectionEvents(){
+      const section = app.state.currentSection;
+      if(['reading','language','listening'].includes(section.type)) bindObjectiveEvents(section);
+      if(section.type === 'listening'){
+        $('listen-play').addEventListener('click', handleListenPlay);
+        $('listen-transcript').addEventListener('click',()=>$('transcript-box').classList.toggle('hidden'));
       }
-      if (section.type === 'writing') {
-        byId('writing-area').addEventListener('input', e => app.state.writingDraft = e.target.value);
-        byId('save-writing').onclick = () => { localStorage.setItem('celi-writing-draft', app.state.writingDraft); alert('Bozza salvata sul dispositivo.'); };
-        byId('finish-writing').onclick = () => {
+      if(section.type === 'writing'){
+        $('writing-area').addEventListener('input',e=> app.state.writingDraft = e.target.value);
+        $('save-writing').addEventListener('click',()=>{ localStorage.setItem('celi-writing-draft', app.state.writingDraft); alert('Bozza salvata sul dispositivo.'); });
+        $('finish-writing').addEventListener('click',()=>{
           localStorage.setItem('celi-writing-draft', app.state.writingDraft);
           app.state.score = estimateWritingScore(app.state.writingDraft);
           finishSection();
-        };
-        byId('next-btn').disabled = true;
+        });
       }
-      if (section.type === 'speaking') {
-        byId('speaking-notes').addEventListener('input', e => app.state.speakingNotes = e.target.value);
-        byId('toggle-phase').onclick = () => {
-          app.state.speakingPhase = app.state.speakingPhase === 'prep' ? 'speak' : 'prep';
-          renderSection(section);
-        };
-        byId('finish-speaking').onclick = () => {
+      if(section.type === 'speaking'){
+        $('speaking-notes').addEventListener('input',e=> app.state.speakingNotes = e.target.value);
+        $('toggle-phase').addEventListener('click',()=>{ app.state.speakingPhase = app.state.speakingPhase === 'prep' ? 'speak' : 'prep'; renderSection(); });
+        $('finish-speaking').addEventListener('click',()=>{
           localStorage.setItem('celi-speaking-notes', app.state.speakingNotes);
           app.state.score = estimateSpeakingScore(app.state.speakingNotes);
           finishSection();
-        };
+        });
       }
     }
 
-    function bindObjectiveEvents(section) {
-      const options = document.querySelectorAll('.option');
-      options.forEach(btn => btn.addEventListener('click', () => handleObjectiveAnswer(section, Number(btn.dataset.answer), btn)));
+    function bindObjectiveEvents(section){
+      document.querySelectorAll('.option').forEach(btn=>{
+        btn.addEventListener('click',()=>handleObjectiveAnswer(section, Number(btn.dataset.answer)));
+      });
     }
 
-    function handleObjectiveAnswer(section, choice, btnEl) {
-      if (app.state.answered) return;
-      const contentIdx = Number(byId('stat-progress').textContent.split('/')[0]);
-      const idx = contentIdx;
-      const item = section.questions[idx];
+    function handleObjectiveAnswer(section, choice){
+      if(app.state.answered) return;
       app.state.answered = true;
+      const item = getCurrentObjectiveItem(section);
       const options = document.querySelectorAll('.option');
-      options.forEach((opt, i) => {
+      options.forEach((opt,i)=>{
+        opt.classList.add('locked');
+        if(i === item.answer) opt.classList.add('correct');
+        if(i === choice && choice !== item.answer) opt.classList.add('wrong');
         opt.disabled = true;
-        if (i === item.answer) opt.classList.add('correct');
-        if (i === choice && choice !== item.answer) opt.classList.add('wrong');
       });
       const correct = choice === item.answer;
-      if (correct) app.state.score += 1;
-      updateHeader(section.short, idx + 1, section.questions.length, app.state.score);
-      showFeedback(correct ? 'Risposta corretta' : 'Risposta da rivedere', item.explanation, item.tip, () => advanceObjective(section, idx + 1));
+      if(correct) app.state.score += 1;
+      updateHeader(section.short, currentProgressCount()+1, getTotalItems(section), app.state.score);
+      if(app.state.mode === 'practice'){
+        showFeedback(correct ? 'Risposta corretta' : 'Risposta da rivedere', item.explanation, item.tip, advanceObjective);
+      } else {
+        setTimeout(advanceObjective, 500);
+      }
     }
 
-    function advanceObjective(section, nextIndex) {
+    function getCurrentObjectiveItem(section){
+      if(section.type === 'reading'){
+        return section.blocks[app.state.readingBlockIndex].questions[app.state.currentQuestionIndex];
+      }
+      return section.questions[app.state.currentQuestionIndex];
+    }
+
+    function currentProgressCount(){
+      const section = app.state.currentSection;
+      if(section.type === 'reading') return readingQuestionGlobalIndex();
+      return app.state.currentQuestionIndex;
+    }
+
+    function readingQuestionGlobalIndex(){
+      const section = app.state.currentSection;
+      let count = 0;
+      for(let i=0;i<app.state.readingBlockIndex;i++) count += section.blocks[i].questions.length;
+      count += app.state.currentQuestionIndex;
+      return count;
+    }
+
+    function advanceObjective(){
+      hideFeedback();
       app.state.answered = false;
-      if (nextIndex >= section.questions.length) {
-        finishSection();
+      const section = app.state.currentSection;
+      if(section.type === 'reading'){
+        const block = section.blocks[app.state.readingBlockIndex];
+        app.state.currentQuestionIndex += 1;
+        if(app.state.currentQuestionIndex >= block.questions.length){
+          app.state.readingBlockIndex += 1;
+          app.state.currentQuestionIndex = 0;
+          if(app.state.readingBlockIndex >= section.blocks.length){
+            finishSection();
+            return;
+          }
+        }
+      } else {
+        app.state.currentQuestionIndex += 1;
+        if(app.state.currentQuestionIndex >= section.questions.length){
+          finishSection();
+          return;
+        }
+      }
+      updateHeader(section.short, currentProgressCount(), getTotalItems(section), app.state.score);
+      renderSection();
+    }
+
+    function handleListenPlay(){
+      const section = app.state.currentSection;
+      if(app.state.mode === 'full' && app.state.listenCount >= 2){
+        alert('Hai già usato le due riproduzioni disponibili in modalità simulazione completa.');
         return;
       }
-      if (section.type === 'reading') byId('exam-content').innerHTML = renderReading(section, nextIndex);
-      if (section.type === 'listening') byId('exam-content').innerHTML = renderListening(section, nextIndex);
-      if (section.type === 'language') byId('exam-content').innerHTML = renderLanguage(section, nextIndex);
-      bindSectionEvents(section);
-      updateHeader(section.short, nextIndex, section.questions.length, app.state.score);
+      app.state.listenCount += 1;
+      playSpeech(section.transcript);
+      renderSection();
     }
 
-    function handleManualNext() {
-      if (app.state.pendingNext) app.state.pendingNext();
-    }
-
-    function showFeedback(title, body, tip, nextFn) {
-      byId('feedback-title').textContent = title;
-      byId('feedback-body').textContent = body;
-      byId('feedback-tip').textContent = tip;
-      app.state.pendingNext = nextFn;
-      byId('feedback-modal').classList.remove('hidden');
-      byId('feedback-modal').setAttribute('aria-hidden', 'false');
-    }
-
-    function closeFeedbackAndContinue() {
-      byId('feedback-modal').classList.add('hidden');
-      byId('feedback-modal').setAttribute('aria-hidden', 'true');
-      const fn = app.state.pendingNext;
-      app.state.pendingNext = null;
-      fn && fn();
-    }
-
-    function finishSection() {
+    function finishSection(){
       stopTimer();
       const section = app.state.currentSection;
       const total = getTotalItems(section);
       app.state.sectionScores[section.key] = { title: section.title, score: app.state.score, total };
-      if (app.state.mode === 'full') {
+      if(app.state.mode === 'full'){
         app.state.queueIndex += 1;
-        if (app.state.queueIndex < app.state.queue.length) {
+        if(app.state.queueIndex < app.state.queue.length){
           startSection(app.state.queue[app.state.queueIndex], 'full');
           return;
         }
         renderResults('full');
         return;
       }
-      renderResults('single');
+      renderResults('practice');
     }
 
-    function renderResults(mode) {
+    function renderResults(mode){
       showScreen('results-screen');
       updateHeroProgress(100);
       const items = Object.values(app.state.sectionScores);
-      const totalScore = items.reduce((a, b) => a + b.score, 0);
-      const totalItems = items.reduce((a, b) => a + b.total, 0);
+      const totalScore = items.reduce((sum,i)=>sum+i.score,0);
+      const totalItems = items.reduce((sum,i)=>sum+i.total,0);
       const perfect = totalItems > 0 && totalScore === totalItems;
-      byId('result-banner').className = `result-banner ${perfect ? 'perfect' : 'completed'}`;
-      byId('result-banner').innerHTML = perfect
-        ? '<h2 style="margin:0">Perfetto</h2><p style="margin:8px 0 0">Hai completato la simulazione senza errori nelle parti oggettive. Ottimo controllo e ottima concentrazione.</p>'
-        : '<h2 style="margin:0">Completato</h2><p style="margin:8px 0 0">Hai finito questa simulazione. Rivedi i feedback e ripeti la sezione per consolidare il livello B2.</p>';
-      byId('result-scores').innerHTML = items.map(item => `
+      $('result-banner').className = `result-banner ${perfect ? 'perfect' : 'completed'}`;
+      $('result-banner').innerHTML = perfect
+        ? `<h2 style="margin:0">Perfetto</h2><p style="margin:8px 0 0">Hai completato questa prova senza errori nelle parti oggettive. Ottimo controllo e ottima concentrazione.</p>`
+        : `<h2 style="margin:0">Completato</h2><p style="margin:8px 0 0">Hai finito questa prova. Usa il report per capire dove consolidare il tuo livello B2.</p>`;
+      $('result-scores').innerHTML = items.map(item=>`
         <div class="score-box">
           <div class="mini">${item.title}</div>
-          <div style="font-size:2rem;font-weight:900;margin-top:6px">${item.score}/${item.total}</div>
+          <div class="big">${item.score}/${item.total}</div>
         </div>`).join('');
-      byId('result-notes').textContent = mode === 'full'
-        ? 'Modalità esame completo terminata. Usa questo report per capire quali sezioni richiedono più lavoro.'
-        : 'Sezione completata. Ripetila quante volte vuoi per aumentare velocità e precisione.';
+      $('result-notes').textContent = mode === 'full'
+        ? 'Simulazione completa terminata. Nella prossima iterazione si può ampliare ancora il peso specifico di lettura, scrittura e orale con rubriche più precise.'
+        : 'Pratica completata. Puoi ripetere subito questa sezione oppure tornare alla home per allenarti in un’altra abilità.';
     }
 
-    function estimateWritingScore(text) {
+    function handleBackFromExam(){
+      stopTimer();
+      if(app.state.mode === 'full'){
+        showScreen('full-intro-screen');
+      } else {
+        showScreen('practice-screen');
+      }
+    }
+
+    function showFeedback(title, body, tip, nextFn){
+      $('feedback-title').textContent = title;
+      $('feedback-body').textContent = body;
+      $('feedback-tip').textContent = tip;
+      app.state.pendingNext = nextFn;
+      $('feedback-modal').classList.remove('hidden');
+      $('feedback-modal').setAttribute('aria-hidden','false');
+    }
+
+    function hideFeedback(){
+      $('feedback-modal').classList.add('hidden');
+      $('feedback-modal').setAttribute('aria-hidden','true');
+    }
+
+    function closeFeedbackAndContinue(){
+      hideFeedback();
+      const fn = app.state.pendingNext;
+      app.state.pendingNext = null;
+      if(fn) fn();
+    }
+
+    function estimateWritingScore(text){
       const words = text.trim().split(/\s+/).filter(Boolean).length;
-      if (words >= 180) return 1;
-      return 0;
+      return words >= 170 ? 1 : 0;
     }
 
-    function estimateSpeakingScore(text) {
+    function estimateSpeakingScore(text){
       const words = text.trim().split(/\s+/).filter(Boolean).length;
-      if (words >= 35) return 1;
-      return 0;
+      return words >= 35 ? 1 : 0;
     }
 
-    function startTimer() {
+    function startTimer(){
       updateTimer();
-      app.state.timerId = setInterval(() => {
+      app.state.timerId = setInterval(()=>{
         app.state.timerRemaining -= 1;
         updateTimer();
-        if (app.state.timerRemaining <= 0) {
+        if(app.state.timerRemaining <= 0){
           stopTimer();
           alert('Tempo scaduto per questa sezione.');
           finishSection();
         }
-      }, 1000);
+      },1000);
     }
 
-    function stopTimer() {
-      if (app.state.timerId) clearInterval(app.state.timerId);
+    function stopTimer(){
+      if(app.state.timerId) clearInterval(app.state.timerId);
       app.state.timerId = null;
     }
 
-    function updateTimer() {
-      byId('stat-timer').textContent = formatTime(Math.max(0, app.state.timerRemaining));
+    function updateTimer(){
+      $('stat-timer').textContent = formatTime(Math.max(0, app.state.timerRemaining));
     }
 
-    function updateHeroProgress(val) {
-      byId('hero-progress').style.width = `${val}%`;
+    function updateHeroProgress(value){
+      $('hero-progress-bar').style.width = `${value}%`;
     }
 
-    function formatTime(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, '0');
-      const s = String(sec % 60).padStart(2, '0');
+    function formatTime(sec){
+      const m = String(Math.floor(sec/60)).padStart(2,'0');
+      const s = String(sec%60).padStart(2,'0');
       return `${m}:${s}`;
     }
 
-    function playSpeech(text) {
-      if (!('speechSynthesis' in window)) {
+    function playSpeech(text){
+      if(!('speechSynthesis' in window)){
         alert('La sintesi vocale non è disponibile in questo browser.');
         return;
       }
@@ -684,13 +760,13 @@ Nel tuo intervento:
       window.speechSynthesis.speak(utterance);
     }
 
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    function escapeHtml(text){
+      return String(text || '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
     }
 
     document.addEventListener('DOMContentLoaded', init);

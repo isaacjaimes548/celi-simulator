@@ -457,7 +457,9 @@ const state = {
   audioRate:0.9,
   audioVoiceName:'',
   audioVoiceLang:'it-IT',
-  currentQuestionKey:null
+  currentQuestionKey:null,
+  speakingStarted:false,
+  speakingPrepared:false
 };
 
 const el = {
@@ -748,7 +750,21 @@ function hideFeedback(){
 }
 
 el.modalNext.addEventListener('click', hideFeedback);
-el.modalRepeat.addEventListener('click', () => { el.modal.classList.add('hidden'); state.pendingAdvance = null; });
+el.modalRepeat.addEventListener('click', () => {
+  el.modal.classList.add('hidden');
+  if(typeof state.pendingAdvance === 'function'){
+    el.nextBtn.textContent = 'Avanti →';
+    el.nextBtn.classList.remove('hidden');
+  }
+});
+el.nextBtn.addEventListener('click', () => {
+  const fn = state.pendingAdvance;
+  if(typeof fn === 'function'){
+    el.nextBtn.classList.add('hidden');
+    state.pendingAdvance = null;
+    fn();
+  }
+});
 
 function renderCurrentItem(){
   updateStats();
@@ -819,6 +835,7 @@ function renderObjective(item,subtitle){
   });
 }
 
+
 function renderListening(item){
   el.examContent.innerHTML = `
     <article class="audio-card">
@@ -849,12 +866,23 @@ function renderListening(item){
       </div>
     </article>
   `;
-  document.getElementById('audio-speed').value = String(state.audioRate || 0.9);
-  document.getElementById('audio-speed').addEventListener('change', (e) => {
-    state.audioRate = Number(e.target.value);
-  });
-  populateVoiceSelect();
+  const speedSel = document.getElementById('audio-speed');
+  if(speedSel){
+    speedSel.value = String(state.audioRate || 0.9);
+    speedSel.addEventListener('change', (e) => {
+      state.audioRate = Number(e.target.value);
+    });
+  }
+
   const voiceSelect = document.getElementById('audio-voice');
+  try {
+    populateVoiceSelect();
+  } catch (err) {
+    if (voiceSelect) {
+      voiceSelect.innerHTML = '<option value="">Voce di sistema</option>';
+    }
+  }
+
   if (voiceSelect) {
     voiceSelect.addEventListener('change', (e) => {
       const opt = e.target.selectedOptions[0];
@@ -862,16 +890,32 @@ function renderListening(item){
       state.audioVoiceLang = (opt && opt.dataset.lang) || 'it-IT';
     });
   }
-  document.getElementById('listen-btn').addEventListener('click', () => {
+
+  const listenStatus = document.getElementById('listen-status');
+  const hasTTS = 'speechSynthesis' in window;
+  if(!hasTTS && listenStatus){
+    listenStatus.textContent = 'Il TTS non è disponibile in questo browser. Leggi la traccia qui sotto e rispondi alla domanda.';
+    const fallback = document.createElement('div');
+    fallback.className = 'prompt-box';
+    fallback.style.marginTop = '14px';
+    fallback.textContent = item.script;
+    document.querySelector('.audio-card').insertBefore(fallback, document.querySelector('.question-subtitle'));
+  }
+
+  const listenBtn = document.getElementById('listen-btn');
+  const stopBtn = document.getElementById('stop-listen-btn');
+
+  listenBtn?.addEventListener('click', () => {
     item.listens = (item.listens || 0) + 1;
     document.getElementById('listen-count').textContent = item.listens;
-    document.getElementById('listen-status').textContent = 'Riproduzione in corso…';
+    if(listenStatus) listenStatus.textContent = 'Riproduzione in corso…';
     speakText(item.script);
   });
-  document.getElementById('stop-listen-btn').addEventListener('click', () => {
+  stopBtn?.addEventListener('click', () => {
     stopSpeech();
-    document.getElementById('listen-status').textContent = 'Riproduzione interrotta.';
+    if(listenStatus) listenStatus.textContent = 'Riproduzione interrotta.';
   });
+
   bindObjectiveOptions(item, () => {
     state.results.listening.answered++;
     state.answeredObjective++;
@@ -879,6 +923,8 @@ function renderListening(item){
     renderCurrentItem();
   });
 }
+
+
 
 function renderWriting(item){
   const draftKey = `writing_${item.prompt}`;
@@ -901,26 +947,49 @@ function renderWriting(item){
       </div>
       <div class="top-actions" style="margin-top:18px">
         <button class="btn secondary" id="clear-writing-btn">Pulisci bozza</button>
-        <button class="btn" id="complete-writing-btn">Consegna traccia</button>
+        <button class="btn" id="complete-writing-btn" disabled>Consegna traccia</button>
       </div>
+      <div id="writing-warning" class="listen-status" style="display:none;margin-top:12px">Scrivi almeno una bozza minima e conferma la checklist prima di consegnare.</div>
     </article>
   `;
   const area = document.getElementById('writing-area');
   const count = document.getElementById('word-count');
+  const completeBtn = document.getElementById('complete-writing-btn');
+  const warning = document.getElementById('writing-warning');
+  const checks = Array.from(document.querySelectorAll('.checklist input[type="checkbox"]'));
   const updateCount = () => { count.textContent = area.value.trim() ? area.value.trim().split(/\s+/).length : 0; };
+  const canSubmit = () => {
+    const words = area.value.trim() ? area.value.trim().split(/\s+/).length : 0;
+    const checked = checks.filter(c => c.checked).length;
+    return words >= 30 && checked >= 2;
+  };
+  const syncButton = () => {
+    const ok = canSubmit();
+    completeBtn.disabled = !ok;
+    if(ok) warning.style.display = 'none';
+  };
   updateCount();
+  syncButton();
   area.addEventListener('input', () => {
     updateCount();
     state.writingDrafts[draftKey] = area.value;
     persistDrafts();
+    syncButton();
   });
+  checks.forEach(c => c.addEventListener('change', syncButton));
   document.getElementById('clear-writing-btn').addEventListener('click', () => {
     area.value = '';
+    checks.forEach(c => c.checked = false);
     state.writingDrafts[draftKey] = '';
     persistDrafts();
     updateCount();
+    syncButton();
   });
-  document.getElementById('complete-writing-btn').addEventListener('click', () => {
+  completeBtn.addEventListener('click', () => {
+    if(!canSubmit()){
+      warning.style.display = 'block';
+      return;
+    }
     state.results.writing.completed++;
     state.writingDrafts[draftKey] = area.value;
     persistDrafts();
@@ -929,7 +998,11 @@ function renderWriting(item){
   });
 }
 
+
+
 function renderSpeaking(item){
+  state.speakingPrepared = false;
+  state.speakingStarted = false;
   el.examContent.innerHTML = `
     <article class="oral-card">
       <span class="tag">Prompt orale casuale</span>
@@ -940,22 +1013,63 @@ function renderSpeaking(item){
         <span class="tag">Risposta: 1–2 min</span>
         <span class="warning-chip">Parla in modo chiaro e sviluppa almeno due idee</span>
       </div>
+      <div class="top-actions" style="margin-top:10px">
+        <button class="btn secondary" id="start-prep-btn">Avvia preparazione</button>
+        <button class="btn secondary" id="start-speaking-btn" disabled>Avvia risposta</button>
+      </div>
+      <div id="speaking-status" class="listen-status">Inizia con la fase di preparazione, poi passa alla risposta orale.</div>
       <div class="checklist">
         <label class="checkline"><input type="checkbox"> Ho organizzato bene l’introduzione.</label>
         <label class="checkline"><input type="checkbox"> Ho dato almeno due idee sviluppate.</label>
         <label class="checkline"><input type="checkbox"> Ho parlato con fluidità sufficiente.</label>
       </div>
       <div class="top-actions" style="margin-top:18px">
-        <button class="btn" id="complete-speaking-btn">Completa prompt</button>
+        <button class="btn" id="complete-speaking-btn" disabled>Completa prompt</button>
       </div>
+      <div id="speaking-warning" class="listen-status" style="display:none;margin-top:12px">Prima completa la fase di preparazione/risposta e conferma almeno 2 indicatori di autovalutazione.</div>
     </article>
   `;
-  document.getElementById('complete-speaking-btn').addEventListener('click', () => {
+  const prepBtn = document.getElementById('start-prep-btn');
+  const startBtn = document.getElementById('start-speaking-btn');
+  const completeBtn = document.getElementById('complete-speaking-btn');
+  const status = document.getElementById('speaking-status');
+  const warning = document.getElementById('speaking-warning');
+  const checks = Array.from(document.querySelectorAll('.checklist input[type="checkbox"]'));
+
+  const syncSpeakingButton = () => {
+    const checked = checks.filter(c => c.checked).length;
+    const canComplete = state.speakingStarted && checked >= 2;
+    completeBtn.disabled = !canComplete;
+    if(canComplete) warning.style.display = 'none';
+  };
+
+  prepBtn.addEventListener('click', () => {
+    state.speakingPrepared = true;
+    startBtn.disabled = false;
+    status.textContent = 'Preparazione avviata. Organizza introduzione, due idee principali e una breve chiusura.';
+    warning.style.display = 'none';
+  });
+
+  startBtn.addEventListener('click', () => {
+    if(!state.speakingPrepared) return;
+    state.speakingStarted = true;
+    status.textContent = 'Risposta orale avviata. Parla per 1–2 minuti e poi completa la checklist di autovalutazione.';
+    syncSpeakingButton();
+  });
+
+  checks.forEach(c => c.addEventListener('change', syncSpeakingButton));
+
+  completeBtn.addEventListener('click', () => {
+    if(completeBtn.disabled){
+      warning.style.display = 'block';
+      return;
+    }
     state.results.speaking.completed++;
     state.itemIndex++;
     renderCurrentItem();
   });
 }
+
 
 function bindObjectiveOptions(item, after){
   document.querySelectorAll('.option').forEach(btn => {
@@ -1167,7 +1281,11 @@ function populateVoiceSelect(){
 
 function speakText(text){
   stopSpeech();
-  if(!('speechSynthesis' in window)) return;
+  if(!('speechSynthesis' in window)) {
+    const status = document.getElementById('listen-status');
+    if(status) status.textContent = 'TTS non disponibile in questo browser.';
+    return;
+  }
   const utter = new SpeechSynthesisUtterance(text);
   const voices = getAvailableVoices();
   let voice = voices.find(v => v.name === state.audioVoiceName) || pickBestItalianVoice();

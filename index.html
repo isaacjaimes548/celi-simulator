@@ -454,7 +454,9 @@ const state = {
   runStartTs:null,
   attemptHistory:[],
   writingDrafts:{},
-  audioRate:0.96,
+  audioRate:0.9,
+  audioVoiceName:'',
+  audioVoiceLang:'it-IT',
   currentQuestionKey:null
 };
 
@@ -827,11 +829,14 @@ function renderListening(item){
         <span class="tag">Riproduzioni usate: <span id="listen-count">${item.listens || 0}</span></span>
         <span class="tag">Velocità audio</span>
         <select id="audio-speed" class="speed-select">
-          <option value="0.9">0.9x</option>
-          <option value="0.96" selected>1.0x morbido</option>
-          <option value="1">1.0x</option>
+          <option value="0.82">0.82x molto chiaro</option>
+          <option value="0.9" selected>0.9x naturale</option>
+          <option value="0.98">0.98x fluido</option>
         </select>
+        <span class="tag">Voce</span>
+        <select id="audio-voice" class="speed-select"></select>
       </div>
+      <div class="listen-helper">Consiglio: scegli una voce italiana “natural”, “enhanced”, “premium” o Siri se disponibile sul dispositivo.</div>
       <div class="top-actions">
         <button class="btn secondary" id="listen-btn">Ascolta</button>
         <button class="btn secondary" id="stop-listen-btn">Stop</button>
@@ -844,10 +849,19 @@ function renderListening(item){
       </div>
     </article>
   `;
-  document.getElementById('audio-speed').value = String(state.audioRate || 0.96);
+  document.getElementById('audio-speed').value = String(state.audioRate || 0.9);
   document.getElementById('audio-speed').addEventListener('change', (e) => {
     state.audioRate = Number(e.target.value);
   });
+  populateVoiceSelect();
+  const voiceSelect = document.getElementById('audio-voice');
+  if (voiceSelect) {
+    voiceSelect.addEventListener('change', (e) => {
+      const opt = e.target.selectedOptions[0];
+      state.audioVoiceName = e.target.value || '';
+      state.audioVoiceLang = (opt && opt.dataset.lang) || 'it-IT';
+    });
+  }
   document.getElementById('listen-btn').addEventListener('click', () => {
     item.listens = (item.listens || 0) + 1;
     document.getElementById('listen-count').textContent = item.listens;
@@ -1091,24 +1105,111 @@ function renderResults(){
   renderHistory();
   el.heroBar.style.width = '100%';
 }
+
+function getAvailableVoices(){
+  if(!('speechSynthesis' in window)) return [];
+  return window.speechSynthesis.getVoices() || [];
+}
+
+function scoreItalianVoice(v){
+  const name = (v.name || '').toLowerCase();
+  const lang = (v.lang || '').toLowerCase();
+  let score = 0;
+  if(lang.startsWith('it')) score += 120;
+  if(name.includes('natural')) score += 70;
+  if(name.includes('enhanced')) score += 65;
+  if(name.includes('premium')) score += 60;
+  if(name.includes('siri')) score += 58;
+  if(name.includes('alice')) score += 56;
+  if(name.includes('luca')) score += 54;
+  if(name.includes('elsa')) score += 52;
+  if(name.includes('federica')) score += 50;
+  if(name.includes('google')) score += 20;
+  if(v.localService) score += 8;
+  if(v.default) score += 5;
+  return score;
+}
+
+function pickBestItalianVoice(){
+  const voices = getAvailableVoices();
+  if(!voices.length) return null;
+  const italian = voices.filter(v => (v.lang || '').toLowerCase().startsWith('it'));
+  const pool = italian.length ? italian : voices;
+  return pool.slice().sort((a,b) => scoreItalianVoice(b) - scoreItalianVoice(a))[0] || null;
+}
+
+function populateVoiceSelect(){
+  const select = document.getElementById('audio-voice');
+  if(!select) return;
+  const voices = getAvailableVoices();
+  const italian = voices.filter(v => (v.lang || '').toLowerCase().startsWith('it'));
+  const pool = italian.length ? italian.slice().sort((a,b) => scoreItalianVoice(b) - scoreItalianVoice(a)) : voices;
+  const best = pickBestItalianVoice();
+  if(!state.audioVoiceName && best){
+    state.audioVoiceName = best.name || '';
+    state.audioVoiceLang = best.lang || 'it-IT';
+  }
+  if(!pool.length){
+    select.innerHTML = '<option value="">Voce di sistema</option>';
+    return;
+  }
+  select.innerHTML = pool.map(v => {
+    const label = `${v.name}${v.default ? ' · default' : ''}${v.localService ? ' · locale' : ''}`;
+    return `<option value="${escapeHtml(v.name || '')}" data-lang="${escapeHtml(v.lang || 'it-IT')}">${escapeHtml(label)}</option>`;
+  }).join('');
+  const selected = pool.find(v => v.name === state.audioVoiceName) || best || pool[0];
+  if(selected){
+    select.value = selected.name;
+    state.audioVoiceName = selected.name || '';
+    state.audioVoiceLang = selected.lang || 'it-IT';
+  }
+}
+
 function speakText(text){
   stopSpeech();
   if(!('speechSynthesis' in window)) return;
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'it-IT';
-  utter.rate = state.audioRate || 0.96;
-  utter.pitch = 1;
+  const voices = getAvailableVoices();
+  let voice = voices.find(v => v.name === state.audioVoiceName) || pickBestItalianVoice();
+  if(voice){
+    utter.voice = voice;
+    utter.lang = voice.lang || 'it-IT';
+    state.audioVoiceName = voice.name || '';
+    state.audioVoiceLang = voice.lang || 'it-IT';
+  } else {
+    utter.lang = state.audioVoiceLang || 'it-IT';
+  }
+  utter.rate = state.audioRate || 0.9;
+  utter.pitch = 0.96;
+  utter.volume = 1;
+  utter.onstart = () => {
+    const status = document.getElementById('listen-status');
+    if(status){
+      const voiceLabel = state.audioVoiceName ? `Voce: ${state.audioVoiceName}` : 'Voce di sistema';
+      status.textContent = `Riproduzione in corso… ${voiceLabel}`;
+    }
+  };
   utter.onend = () => {
     const status = document.getElementById('listen-status');
     if(status) status.textContent = 'Riproduzione completata.';
   };
+  utter.onerror = () => {
+    const status = document.getElementById('listen-status');
+    if(status) status.textContent = 'Audio non disponibile con questa voce. Prova un’altra voce o riapri la pagina.';
+  };
   state.audioUtterance = utter;
-  speechSynthesis.speak(utter);
+  window.speechSynthesis.speak(utter);
 }
 
 function stopSpeech(){
-  if('speechSynthesis' in window) speechSynthesis.cancel();
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
   state.audioUtterance = null;
+}
+
+if('speechSynthesis' in window){
+  window.speechSynthesis.onvoiceschanged = () => {
+    populateVoiceSelect();
+  };
 }
 
 

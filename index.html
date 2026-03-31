@@ -45,6 +45,26 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:12px}
 #practice-grid .card h3{min-height:72px;display:flex;align-items:flex-start}
 #practice-grid .card p{min-height:84px}
 #practice-grid .features{margin-top:auto}
+
+#full-intro-screen .sim-shell{display:grid;gap:22px}
+#full-intro-screen .sim-hero{padding:28px;background:linear-gradient(135deg,#ffffff 0%,#f7f9ff 100%);border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow)}
+#full-intro-screen .sim-hero h2{margin:0 0 10px;font-size:2rem}
+#full-intro-screen .sim-hero p{margin:0;color:var(--muted);line-height:1.7;max-width:900px}
+#full-intro-screen .sim-topline{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#edf2ff;color:#355cc8;font-size:.85rem;font-weight:900;margin-bottom:14px}
+#full-intro-screen .sim-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+#full-intro-screen .sim-card{padding:24px;background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+#full-intro-screen .sim-card h3{margin:0 0 14px;font-size:1.25rem}
+#full-intro-screen .sim-flow{display:grid;gap:12px}
+#full-intro-screen .flow-step{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:18px;background:#f7f9ff;border:1px solid var(--line)}
+#full-intro-screen .flow-num{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-weight:900}
+#full-intro-screen .flow-copy strong{display:block;margin-bottom:3px}
+#full-intro-screen .sim-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#full-intro-screen .metric{padding:16px;border-radius:20px;background:#f7f9ff;border:1px solid var(--line)}
+#full-intro-screen .metric .k{font-size:.85rem;color:var(--muted);font-weight:800}
+#full-intro-screen .metric .v{margin-top:6px;font-size:1.6rem;font-weight:900;color:#223764}
+#full-intro-screen .metric .m{margin-top:4px;color:var(--muted);font-size:.92rem;line-height:1.45}
+#full-intro-screen .sim-footer{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:20px}
+#full-intro-screen .sim-note{color:var(--muted);font-size:.93rem;line-height:1.6;max-width:560px}
 .dual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .card{padding:24px;cursor:pointer;transition:transform .14s ease}
 .card .pill,.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#edf2ff;color:#355cc8;font-size:.8rem;font-weight:800;margin-bottom:12px}
@@ -53,22 +73,57 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:12px}
 .features{margin-top:16px;display:grid;gap:8px;color:#38517b;font-weight:700;font-size:.95rem}
 .top-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-.stat{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
-.label{font-size:.92rem;font-weight:700;color:var(--muted)}
-.value{margin-top:6px;font-size:1.85rem;font-weight:900}
+
+.exam-shell{display:grid;gap:18px}
+.exam-overview{position:relative;overflow:hidden;background:linear-gradient(135deg,#173b8a 0%,#5869ff 58%,#8d5cff 100%);border-radius:30px;padding:24px;color:#fff;box-shadow:var(--shadow)}
+.exam-overview::after{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.12);filter:blur(6px)}
+.exam-copy{position:relative;z-index:1;max-width:760px}
+.exam-kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);font-size:.82rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+.exam-copy h2{margin:12px 0 10px;font-size:clamp(1.7rem,3.4vw,2.5rem)}
+.exam-copy p{margin:0;color:rgba(255,255,255,.9);line-height:1.65;max-width:660px}
+.exam-mini-chips{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.exam-mini-chip{padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);font-size:.9rem;font-weight:700}
+.stat-row{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.stat{background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.22);border-radius:22px;padding:16px;text-align:left;box-shadow:0 10px 28px rgba(10,18,37,.12)}
+.label{font-size:.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.value{margin-top:10px;font-size:1.95rem;font-weight:900;line-height:1}
 .value.good{color:var(--good)} .value.bad{color:var(--bad)} .value.warn{color:var(--warn)}
-.meter{height:10px;border-radius:999px;background:#e8eef8;overflow:hidden;margin-bottom:18px}
+.exam-toolbar{display:flex;gap:16px;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:24px;padding:16px 18px;box-shadow:var(--shadow)}
+.exam-toolbar-main{flex:1;min-width:0}
+.exam-toolbar-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.exam-toolbar-label{font-size:.86rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.exam-toolbar-current{font-size:1.02rem;font-weight:800;color:#223764}
+.meter{height:12px;border-radius:999px;background:#e8eef8;overflow:hidden;margin:0}
 .meter>div{height:100%;width:0;background:linear-gradient(90deg,#19d579,#74ff84);transition:width .3s ease}
+.top-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
+.exam-stage{display:grid;gap:18px}
+.exam-stage .layout-2{align-items:start}
 .layout-2{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+#exam-content>.question-card,#exam-content>.passage-card,#exam-content>.picker-card,#exam-content>.writing-card,#exam-content>.oral-card,#exam-content>.audio-card,#exam-content>.result-card{padding:26px;border-radius:28px}
+#exam-content .passage-card{background:linear-gradient(180deg,#ffffff,#f9fbff)}
+#exam-content .question-card,#exam-content .picker-card,#exam-content .writing-card,#exam-content .oral-card,#exam-content .audio-card{background:#fff}
+#exam-content .section-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+#exam-content .section-header h2{font-size:1.7rem}
+#exam-content .section-header p{max-width:760px}
+#exam-content .question-subtitle{font-size:1rem;line-height:1.65;margin-bottom:18px}
+#exam-content .options{gap:14px}
+#exam-content .option{padding:16px 18px;border-radius:18px}
+#exam-content textarea{min-height:260px;border-radius:22px;padding:18px;font-size:1rem}
+#exam-content .footer-note{background:#f7f9ff;border:1px solid var(--line);border-radius:18px;padding:14px 16px}
 .passage-card,.question-card,.picker-card,.writing-card,.oral-card,.audio-card{padding:22px}
 .passage{white-space:pre-wrap;line-height:1.72;color:#31405f}
 .question-title{margin:0 0 8px;font-size:1.32rem}
 .question-subtitle{margin:0 0 16px;color:var(--muted)}
 .options{display:grid;gap:12px}
-.option{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px 16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .14s ease}
+.option{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px 16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .18s ease;position:relative}
+.option:hover{border-color:#bed0ff;box-shadow:0 10px 24px rgba(83,117,255,.08)}
+.option.selected{border-color:#7d95ff;background:#f5f8ff;box-shadow:0 0 0 3px rgba(83,117,255,.10)}
 .option.correct{background:#e8fff3;border-color:#86e3b1}
 .option.wrong{background:#fff0f3;border-color:#ffa1ac}
+.option.locked{pointer-events:none;opacity:.96}
+.option::after{content:"";position:absolute;right:14px;top:50%;transform:translateY(-50%) scale(.8);opacity:0;transition:all .18s ease;font-size:1.05rem}
+.option.correct::after{content:"✓";opacity:1;transform:translateY(-50%) scale(1);color:var(--good);font-weight:900}
+.option.wrong::after{content:"✕";opacity:1;transform:translateY(-50%) scale(1);color:var(--bad);font-weight:900}
 .option.locked{pointer-events:none}
 .small-meta{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
 .prompt-box{background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:16px;line-height:1.65}
@@ -89,13 +144,75 @@ textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:
 .score-box{border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;background:#fff}
 .score-box .big{font-size:2rem;font-weight:900;margin-top:8px}
 .feedback-note{margin-top:18px;color:var(--muted);line-height:1.6}
+
+.practice-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:6px 0 18px}
+.practice-summary{padding:14px 16px;border-radius:18px;background:#fff;border:1px solid var(--line);color:var(--muted);box-shadow:var(--shadow)}
+.exam-stage.is-switching{opacity:0;transform:translateY(10px);transition:all .22s ease}
+.exam-stage{transition:all .22s ease}
+.small-meta{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 14px}
+.small-meta .tag{margin:0}
+.prompt-box{padding:18px;border-radius:18px;background:#f7f9ff;border:1px solid var(--line);line-height:1.65;font-size:1.02rem}
+.checklist{display:grid;gap:10px;margin-top:16px}
+.checkline{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#f8faff;border:1px solid var(--line);color:#31405f}
+.checkline input{margin-top:4px}
+.modal-card{position:relative}
+.feedback-status{display:flex;justify-content:center;margin-bottom:14px}
+.feedback-status .pill{margin:0}
+.feedback-box.good{background:#eefbf4;border-color:#c4efd7}
+.feedback-box.bad{background:#fff4f5;border-color:#ffd0d6}
+.feedback-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.feedback-actions .btn{flex:1}
+.result-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;margin-bottom:16px}
+.result-actions-left,.result-actions-right{display:flex;gap:12px;flex-wrap:wrap}
+.result-meta-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 20px}
+.result-meta{padding:16px;border-radius:18px;background:#f7f9ff;border:1px solid var(--line)}
+.result-history{margin-top:22px;padding:18px;border-radius:22px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}
+.history-list{display:grid;gap:10px;margin-top:12px}
+.history-item{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:12px 14px;border-radius:16px;background:#f7f9ff;border:1px solid var(--line)}
+.history-item strong{display:block}
+.history-item .mini{margin-top:2px}
+.listen-status{font-size:.92rem;color:var(--muted);margin-top:8px}
+.speed-select{border-radius:14px;border:1px solid var(--line);padding:10px 12px;background:#fff;font-weight:700;color:#223764}
+.warning-chip{padding:9px 12px;border-radius:999px;background:#fff6dc;border:1px solid #ffe59a;color:#8b6a00;font-size:.88rem;font-weight:800}
+.autosave-note{margin-top:8px;font-size:.88rem;color:var(--muted)}
+@media (max-width: 860px){
+  .result-meta-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+.result-shell{display:grid;gap:18px}
+.result-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.result-overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 18px}
+.overview-box{border:1px solid var(--line);border-radius:18px;padding:16px;background:linear-gradient(180deg,#fff,#f8faff)}
+.overview-box .label{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.overview-box .value{font-size:1.9rem;font-weight:900;margin-top:8px;color:var(--ink)}
+.overview-box .sub{margin-top:6px;color:var(--muted);font-size:.95rem;line-height:1.45}
+.score-box{text-align:left;display:flex;flex-direction:column;gap:6px}
+.score-box .row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.score-box .mini{color:var(--muted)}
+.score-box .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#eef3ff;color:#4660d8;font-weight:800;font-size:.78rem}
+.score-bar{height:10px;background:#eef1f7;border-radius:999px;overflow:hidden;margin-top:6px}
+.score-bar > span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#5a72ea,#8a62ff)}
+.result-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.result-panel{border:1px solid var(--line);border-radius:22px;padding:20px;background:#fff}
+.panel-title{margin:0 0 14px;font-size:1.02rem}
+.insight-list{display:grid;gap:10px}
+.insight-item{padding:14px 15px;border-radius:16px;background:var(--card2);border:1px solid var(--line);line-height:1.55}
+.result-note-strong{color:var(--ink);font-weight:800}
+@media (max-width: 860px){
+  .result-grid{grid-template-columns:1fr}
+  .result-actions .btn{width:100%}
+}
 .modal{position:fixed;inset:0;background:rgba(12,19,40,.58);display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}
 .modal-card{width:min(760px,100%);background:#fff;border-radius:28px;padding:24px;box-shadow:var(--shadow)}
 .modal-card h2{margin:0 0 8px;font-size:clamp(1.85rem,4vw,2.85rem);text-align:center;color:#5a72ea}
 .feedback-box{background:#f5f7fc;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px}
 .footer-note{margin-top:18px;color:var(--muted);font-size:.93rem;line-height:1.6}
 @media (max-width: 860px){
-  .dual-grid,.layout-2,.stat-row{grid-template-columns:1fr}
+  .dual-grid,.layout-2,.stat-row,#full-intro-screen .sim-grid,#full-intro-screen .sim-metrics{grid-template-columns:1fr}
+  .exam-toolbar{flex-direction:column;align-items:stretch}
+  .exam-toolbar-top{flex-direction:column;align-items:flex-start}
+  .top-actions{justify-content:stretch}
+  .top-actions .btn{width:100%}
   #practice-grid{grid-template-columns:1fr}
   .page,.hero{padding:18px}
   body{padding:8px}
@@ -144,21 +261,41 @@ textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:
 
     <section id="full-intro-screen" class="hidden">
       <div class="top-actions"><button class="btn secondary" data-action="go-home">← Home</button></div>
-      <article class="card intro">
-        <h2>Simulazione completa</h2>
-        <p>Questa modalità genera ogni volta un percorso casuale con Lettura, Competenza linguistica, Ascolto, Produzione scritta e Produzione orale. Niente feedback dopo ogni risposta: vedrai il report solo alla fine per allenare concentrazione e gestione del tempo.</p>
-        <div class="small-meta">
-          <span class="tag">2 letture casuali su 10</span>
-          <span class="tag">12 domande casuali su 50</span>
-          <span class="tag">6 ascolti casuali su 12</span>
-          <span class="tag">2 tracce scritte su 10</span>
-          <span class="tag">2 prompt orali su 5</span>
+      <div class="sim-shell">
+        <article class="sim-hero">
+          <div class="sim-topline">Modalità esame • Set sempre casuale</div>
+          <h2>Simulazione completa</h2>
+          <p>Questa modalità costruisce ogni volta un percorso diverso con Lettura, Competenza linguistica, Ascolto, Produzione scritta e Produzione orale. Non ricevi feedback dopo ogni risposta: il report arriva solo alla fine, così puoi allenare concentrazione, gestione del tempo e resistenza mentale.</p>
+          <div class="sim-footer">
+            <button class="btn" data-action="start-full">Inizia simulazione</button>
+            <div class="sim-note">Contenuto originale ispirato al livello B2. Il simulatore non è una riproduzione ufficiale del CELI, ma una palestra pratica pensata per rendere ogni tentativo meno prevedibile.</div>
+          </div>
+        </article>
+
+        <div class="sim-grid">
+          <article class="sim-card">
+            <h3>Struttura della prova</h3>
+            <div class="sim-flow">
+              <div class="flow-step"><div class="flow-num">1</div><div class="flow-copy"><strong>Comprensione della lettura</strong><span>2 letture casuali scelte da un banco di 10, con domande di comprensione e inferenza.</span></div></div>
+              <div class="flow-step"><div class="flow-num">2</div><div class="flow-copy"><strong>Competenza linguistica</strong><span>12 domande casuali tra grammatica, lessico e strutture in contesto.</span></div></div>
+              <div class="flow-step"><div class="flow-num">3</div><div class="flow-copy"><strong>Comprensione dell’ascolto</strong><span>6 ascolti casuali dal banco disponibile, con riproduzione TTS del browser.</span></div></div>
+              <div class="flow-step"><div class="flow-num">4</div><div class="flow-copy"><strong>Produzione scritta e orale</strong><span>2 tracce di scrittura e 2 prompt orali per chiudere la simulazione.</span></div></div>
+            </div>
+          </article>
+
+          <article class="sim-card">
+            <h3>Panoramica rapida</h3>
+            <div class="sim-metrics">
+              <div class="metric"><div class="k">Lettura</div><div class="v">2 / 10</div><div class="m">Due testi diversi a ogni tentativo.</div></div>
+              <div class="metric"><div class="k">Lingua</div><div class="v">12 / 50</div><div class="m">Selezione casuale dalle domande del banco.</div></div>
+              <div class="metric"><div class="k">Ascolto</div><div class="v">6 / 12</div><div class="m">Prompt audio diversi per variare il set.</div></div>
+              <div class="metric"><div class="k">Scritta</div><div class="v">2 / 10</div><div class="m">Tracce nuove per allenare adattamento e registro.</div></div>
+              <div class="metric"><div class="k">Orale</div><div class="v">2 / 5</div><div class="m">Prompt selezionati casualmente in ogni run.</div></div>
+              <div class="metric"><div class="k">Feedback</div><div class="v">Finale</div><div class="m">Nessuna spiegazione durante la prova completa.</div></div>
+            </div>
+          </article>
         </div>
-        <div class="top-actions" style="margin-top:18px">
-          <button class="btn" data-action="start-full">Inizia simulazione</button>
-        </div>
-        <div class="footer-note">Nota: il contenuto è originale e ispirato al livello B2, non è una riproduzione ufficiale del CELI.</div>
-      </article>
+      </div>
     </section>
 
     <section id="practice-screen" class="hidden">
@@ -167,7 +304,7 @@ textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:
         <h2>Pratica per sezione</h2>
         <p>Scegli la sezione da allenare. Potrai indicare un numero preciso di attività oppure fare tutto il banco disponibile. Il simulatore prepara un set casuale diverso ogni volta.</p>
       </article>
-      <div class="grid" id="practice-grid"></div>
+      <div class="practice-toolbar"><div class="practice-summary">Scegli una sezione, decidi quante attività vuoi fare oppure prova tutto il banco. Ogni ingresso genera un set nuovo.</div><button class="btn secondary" data-action="open-full-intro">Vedi simulazione completa</button></div><div class="grid" id="practice-grid"></div>
     </section>
 
     <section id="picker-screen" class="hidden">
@@ -191,40 +328,89 @@ textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:
     </section>
 
     <section id="exam-screen" class="hidden">
-      <div class="stat-row">
-        <div class="stat"><div class="label">Sezione</div><div id="stat-section" class="value">—</div></div>
-        <div class="stat"><div class="label">Timer</div><div id="stat-timer" class="value warn">00:00</div></div>
-        <div class="stat"><div class="label">Progresso</div><div id="stat-progress" class="value">0/0</div></div>
-        <div class="stat"><div class="label">Punti</div><div id="stat-score" class="value good">0</div></div>
+      <div class="exam-shell">
+        <div class="exam-overview">
+          <div class="exam-copy">
+            <div class="exam-kicker">Modalità attiva</div>
+            <h2>Allenati con una schermata più chiara, elegante e concentrata.</h2>
+            <p>Qui trovi tutto quello che conta durante la prova: sezione corrente, tempo residuo, avanzamento e punteggio. L'area di lavoro resta più pulita, così la concentrazione va sulle domande e non sul layout.</p>
+            <div class="exam-mini-chips">
+              <span class="exam-mini-chip">Layout premium</span>
+              <span class="exam-mini-chip">Progressione chiara</span>
+              <span class="exam-mini-chip">Focus sul contenuto</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="label">Sezione</div><div id="stat-section" class="value">—</div></div>
+            <div class="stat"><div class="label">Timer</div><div id="stat-timer" class="value warn">00:00</div></div>
+            <div class="stat"><div class="label">Progresso</div><div id="stat-progress" class="value">0/0</div></div>
+            <div class="stat"><div class="label">Punti</div><div id="stat-score" class="value good">0</div></div>
+          </div>
+        </div>
+        <div class="exam-toolbar">
+          <div class="exam-toolbar-main">
+            <div class="exam-toolbar-top">
+              <div class="exam-toolbar-label">Avanzamento della sezione</div>
+              <div class="exam-toolbar-current">Monitora il ritmo e continua quando sei pronto.</div>
+            </div>
+            <div class="meter"><div id="section-progress-bar"></div></div>
+          </div>
+          <div class="top-actions">
+            <button class="btn secondary" id="back-context-btn">← Indietro</button>
+            <button class="btn hidden" id="next-btn">Avanti</button>
+          </div>
+        </div>
+        <div id="exam-content" class="exam-stage"></div>
       </div>
-      <div class="meter"><div id="section-progress-bar"></div></div>
-      <div class="top-actions">
-        <button class="btn secondary" id="back-context-btn">← Indietro</button>
-        <button class="btn hidden" id="next-btn">Avanti</button>
-      </div>
-      <div id="exam-content"></div>
     </section>
 
     <section id="results-screen" class="hidden">
-      <div class="top-actions">
-        <button class="btn secondary" data-action="go-home">← Home</button>
-        <button class="btn" data-action="restart-current">Ripeti</button>
+      <div class="result-shell">
+        <div class="result-actions">
+          <div class="result-actions-left">
+            <button class="btn secondary" data-action="go-home">← Home</button>
+          </div>
+          <div class="result-actions-right">
+            <button class="btn secondary" data-action="new-random-set">Nuovo set casuale</button>
+            <button class="btn" data-action="restart-current">Ripeti</button>
+          </div>
+        </div>
+        <article class="result-card">
+          <div id="result-banner" class="result-banner completed"></div>
+          <div class="result-overview" id="result-overview"></div>
+          <div id="result-meta-strip" class="result-meta-strip"></div>
+          <div class="result-grid">
+            <div class="result-panel">
+              <h3 class="panel-title">Riepilogo per sezione</h3>
+              <div class="scores" id="result-scores"></div>
+            </div>
+            <div class="result-panel">
+              <h3 class="panel-title">Lettura del risultato</h3>
+              <div id="result-insights" class="insight-list"></div>
+            </div>
+          </div>
+          <div id="result-notes" class="feedback-note"></div>
+          <div class="result-history">
+            <h3 class="panel-title">Storico recente</h3>
+            <div class="mini">Ultimi tentativi salvati in locale su questo dispositivo.</div>
+            <div id="history-list" class="history-list"></div>
+          </div>
+        </article>
       </div>
-      <article class="result-card">
-        <div id="result-banner" class="result-banner completed"></div>
-        <div class="scores" id="result-scores"></div>
-        <div id="result-notes" class="feedback-note"></div>
-      </article>
     </section>
   </main>
 </div>
 
 <div id="feedback-modal" class="modal hidden" aria-hidden="true">
   <div class="modal-card">
+    <div class="feedback-status"><span id="feedback-status-pill" class="pill">Feedback</span></div>
     <h2 id="feedback-title">Feedback</h2>
-    <div class="feedback-box"><strong>Spiegazione</strong><div id="feedback-body" style="margin-top:8px"></div></div>
+    <div id="feedback-box-main" class="feedback-box"><strong>Spiegazione</strong><div id="feedback-body" style="margin-top:8px"></div></div>
     <div class="feedback-box"><strong>Consiglio B2</strong><div id="feedback-tip" style="margin-top:8px"></div></div>
-    <div class="top-actions" style="margin-top:18px"><button id="feedback-next" class="btn" style="width:100%">Next →</button></div>
+    <div class="feedback-actions">
+      <button id="feedback-repeat" class="btn secondary">Rivedi la domanda</button>
+      <button id="feedback-next" class="btn">Next →</button>
+    </div>
   </div>
 </div>
 
@@ -263,7 +449,13 @@ const state = {
   results: {},
   currentPickerKey:null,
   lastRun:null,
-  audioUtterance:null
+  audioUtterance:null,
+  sectionStartTs:null,
+  runStartTs:null,
+  attemptHistory:[],
+  writingDrafts:{},
+  audioRate:0.96,
+  currentQuestionKey:null
 };
 
 const el = {
@@ -278,13 +470,20 @@ const el = {
   statScore: document.getElementById('stat-score'),
   sectionBar: document.getElementById('section-progress-bar'),
   resultBanner: document.getElementById('result-banner'),
+  resultOverview: document.getElementById('result-overview'),
   resultScores: document.getElementById('result-scores'),
+  resultInsights: document.getElementById('result-insights'),
   resultNotes: document.getElementById('result-notes'),
+  resultMetaStrip: document.getElementById('result-meta-strip'),
+  historyList: document.getElementById('history-list'),
   modal: document.getElementById('feedback-modal'),
   modalTitle: document.getElementById('feedback-title'),
   modalBody: document.getElementById('feedback-body'),
   modalTip: document.getElementById('feedback-tip'),
   modalNext: document.getElementById('feedback-next'),
+  modalRepeat: document.getElementById('feedback-repeat'),
+  modalStatus: document.getElementById('feedback-status-pill'),
+  modalMainBox: document.getElementById('feedback-box-main'),
   pickerTitle: document.getElementById('picker-title'),
   pickerDescription: document.getElementById('picker-description'),
   pickerCount: document.getElementById('picker-count'),
@@ -309,6 +508,63 @@ function showScreen(key){
   state.screen = key;
   const map = {landing:0, fullIntro:18, practice:28, picker:38, exam:70, results:100};
   el.heroBar.style.width = (map[key] || 0) + '%';
+}
+
+
+const STORAGE_KEYS = {
+  history: 'celiB2AttemptHistory',
+  drafts: 'celiB2WritingDrafts'
+};
+
+function loadPersistedState(){
+  try{
+    state.attemptHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.history) || '[]');
+  }catch(e){ state.attemptHistory = []; }
+  try{
+    state.writingDrafts = JSON.parse(localStorage.getItem(STORAGE_KEYS.drafts) || '{}');
+  }catch(e){ state.writingDrafts = {}; }
+}
+
+function persistHistory(){
+  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(state.attemptHistory.slice(0,8)));
+}
+
+function persistDrafts(){
+  localStorage.setItem(STORAGE_KEYS.drafts, JSON.stringify(state.writingDrafts));
+}
+
+function saveAttempt(summary){
+  state.attemptHistory.unshift(summary);
+  state.attemptHistory = state.attemptHistory.slice(0,8);
+  persistHistory();
+}
+
+function renderHistory(){
+  if(!el.historyList) return;
+  if(!state.attemptHistory.length){
+    el.historyList.innerHTML = '<div class="history-item"><div><strong>Nessun tentativo salvato</strong><div class="mini">Completa una pratica o una simulazione e vedrai qui i risultati recenti.</div></div></div>';
+    return;
+  }
+  el.historyList.innerHTML = state.attemptHistory.map(item => `
+    <div class="history-item">
+      <div>
+        <strong>${item.label}</strong>
+        <div class="mini">${item.date} · ${item.modeLabel}</div>
+      </div>
+      <div style="text-align:right">
+        <strong>${item.primary}</strong>
+        <div class="mini">${item.secondary}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function animateExamSwap(renderFn){
+  el.examContent.classList.add('is-switching');
+  setTimeout(() => {
+    renderFn();
+    requestAnimationFrame(() => el.examContent.classList.remove('is-switching'));
+  }, 160);
 }
 
 function shuffle(arr){
@@ -388,6 +644,7 @@ function openPicker(sectionKey){
 }
 
 function buildPracticeRun(sectionKey,countValue){
+  state.runStartTs = Date.now();
   const count = countValue === 'all' ? 'all' : Number(countValue);
   state.lastRun = {mode:'practice', sectionKey, countValue};
   state.mode = 'practice';
@@ -404,6 +661,7 @@ function buildPracticeRun(sectionKey,countValue){
 }
 
 function buildFullRun(){
+  state.runStartTs = Date.now();
   state.lastRun = {mode:'full'};
   state.mode = 'full';
   state.sectionsQueue = ['reading','grammar','listening','writing','speaking'];
@@ -426,6 +684,7 @@ function buildSection(sectionKey,count){
   state.sectionItems = generateItems(sectionKey,count);
   state.results[sectionKey] = {title:c.title, total:state.sectionItems.length, answered:0, correct:0, completed:0, objective:c.objective};
   const totalTime = c.timePerItem * Math.max(1,state.sectionItems.length);
+  state.sectionStartTs = Date.now();
   startTimer(totalTime);
   updateStats();
 }
@@ -467,10 +726,14 @@ function updateStats(){
   el.sectionBar.style.width = total ? `${(state.itemIndex/total)*100}%` : '0%';
 }
 
-function showFeedback(title,body,tip,onNext){
+function showFeedback(title,body,tip,onNext,correct=true){
   el.modalTitle.textContent = title;
   el.modalBody.textContent = body;
   el.modalTip.textContent = tip || 'Rileggi la consegna e prova a individuare la logica della risposta.';
+  el.modalStatus.textContent = correct ? 'Risposta corretta' : 'Risposta da rivedere';
+  el.modalStatus.style.background = correct ? '#eefbf4' : '#fff4f5';
+  el.modalStatus.style.color = correct ? '#15885a' : '#cb4056';
+  el.modalMainBox.className = 'feedback-box ' + (correct ? 'good' : 'bad');
   el.modal.classList.remove('hidden');
   state.pendingAdvance = onNext;
 }
@@ -483,6 +746,7 @@ function hideFeedback(){
 }
 
 el.modalNext.addEventListener('click', hideFeedback);
+el.modalRepeat.addEventListener('click', () => { el.modal.classList.add('hidden'); state.pendingAdvance = null; });
 
 function renderCurrentItem(){
   updateStats();
@@ -493,11 +757,13 @@ function renderCurrentItem(){
     completeSection();
     return;
   }
-  if(sectionKey === 'reading') renderReading(item);
-  else if(sectionKey === 'grammar') renderObjective(item,'Domanda di competenza linguistica');
-  else if(sectionKey === 'listening') renderListening(item);
-  else if(sectionKey === 'writing') renderWriting(item);
-  else if(sectionKey === 'speaking') renderSpeaking(item);
+  animateExamSwap(() => {
+    if(sectionKey === 'reading') renderReading(item);
+    else if(sectionKey === 'grammar') renderObjective(item,'Domanda di competenza linguistica');
+    else if(sectionKey === 'listening') renderListening(item);
+    else if(sectionKey === 'writing') renderWriting(item);
+    else if(sectionKey === 'speaking') renderSpeaking(item);
+  });
 }
 
 function renderReading(item){
@@ -559,12 +825,18 @@ function renderListening(item){
       <p class="sub">Premi “Ascolta” per far leggere il testo dal browser. In pratica hai feedback immediato; nella simulazione completa rispondi e vai avanti senza spiegazione.</p>
       <div class="small-meta">
         <span class="tag">Riproduzioni usate: <span id="listen-count">${item.listens || 0}</span></span>
-        <span class="tag">TTS del browser</span>
+        <span class="tag">Velocità audio</span>
+        <select id="audio-speed" class="speed-select">
+          <option value="0.9">0.9x</option>
+          <option value="0.96" selected>1.0x morbido</option>
+          <option value="1">1.0x</option>
+        </select>
       </div>
       <div class="top-actions">
         <button class="btn secondary" id="listen-btn">Ascolta</button>
         <button class="btn secondary" id="stop-listen-btn">Stop</button>
       </div>
+      <div id="listen-status" class="listen-status">Premi il pulsante per ascoltare il testo con TTS.</div>
       <div class="question-subtitle" style="margin-top:10px">Domanda</div>
       <h3 class="question-title">${item.q}</h3>
       <div class="options">
@@ -572,12 +844,20 @@ function renderListening(item){
       </div>
     </article>
   `;
+  document.getElementById('audio-speed').value = String(state.audioRate || 0.96);
+  document.getElementById('audio-speed').addEventListener('change', (e) => {
+    state.audioRate = Number(e.target.value);
+  });
   document.getElementById('listen-btn').addEventListener('click', () => {
     item.listens = (item.listens || 0) + 1;
     document.getElementById('listen-count').textContent = item.listens;
+    document.getElementById('listen-status').textContent = 'Riproduzione in corso…';
     speakText(item.script);
   });
-  document.getElementById('stop-listen-btn').addEventListener('click', stopSpeech);
+  document.getElementById('stop-listen-btn').addEventListener('click', () => {
+    stopSpeech();
+    document.getElementById('listen-status').textContent = 'Riproduzione interrotta.';
+  });
   bindObjectiveOptions(item, () => {
     state.results.listening.answered++;
     state.answeredObjective++;
@@ -587,33 +867,49 @@ function renderListening(item){
 }
 
 function renderWriting(item){
+  const draftKey = `writing_${item.prompt}`;
+  const existingDraft = state.writingDrafts[draftKey] || '';
   el.examContent.innerHTML = `
     <article class="writing-card">
       <span class="tag">Traccia scritta casuale</span>
       <h2>Produzione scritta</h2>
       <div class="prompt-box">${item.prompt}</div>
-      <textarea id="writing-area" placeholder="Scrivi qui la tua risposta..."></textarea>
+      <textarea id="writing-area" placeholder="Scrivi qui la tua risposta...">${existingDraft}</textarea>
       <div class="small-meta">
         <span class="tag">Parole: <span id="word-count">0</span></span>
-        <span class="tag">Puoi usare questa sezione per allenarti liberamente</span>
+        <span class="tag">Minimo consigliato: 120 parole</span>
       </div>
+      <div id="autosave-note" class="autosave-note">Bozza salvata localmente su questo dispositivo.</div>
       <div class="checklist">
         <label class="checkline"><input type="checkbox"> Ho risposto alla traccia in modo chiaro.</label>
         <label class="checkline"><input type="checkbox"> Ho usato connettori e un registro coerente.</label>
         <label class="checkline"><input type="checkbox"> Ho controllato verbi, articoli e accordi.</label>
       </div>
       <div class="top-actions" style="margin-top:18px">
+        <button class="btn secondary" id="clear-writing-btn">Pulisci bozza</button>
         <button class="btn" id="complete-writing-btn">Consegna traccia</button>
       </div>
     </article>
   `;
   const area = document.getElementById('writing-area');
   const count = document.getElementById('word-count');
+  const updateCount = () => { count.textContent = area.value.trim() ? area.value.trim().split(/\s+/).length : 0; };
+  updateCount();
   area.addEventListener('input', () => {
-    count.textContent = area.value.trim() ? area.value.trim().split(/\s+/).length : 0;
+    updateCount();
+    state.writingDrafts[draftKey] = area.value;
+    persistDrafts();
+  });
+  document.getElementById('clear-writing-btn').addEventListener('click', () => {
+    area.value = '';
+    state.writingDrafts[draftKey] = '';
+    persistDrafts();
+    updateCount();
   });
   document.getElementById('complete-writing-btn').addEventListener('click', () => {
     state.results.writing.completed++;
+    state.writingDrafts[draftKey] = area.value;
+    persistDrafts();
     state.itemIndex++;
     renderCurrentItem();
   });
@@ -626,8 +922,9 @@ function renderSpeaking(item){
       <h2>Produzione orale</h2>
       <div class="prompt-box">${item.prompt}</div>
       <div class="small-meta">
-        <span class="tag">Suggerimento: prepara 30–60 secondi</span>
-        <span class="tag">Poi parla per 1–2 minuti</span>
+        <span class="tag">Preparazione: 30–60 sec</span>
+        <span class="tag">Risposta: 1–2 min</span>
+        <span class="warning-chip">Parla in modo chiaro e sviluppa almeno due idee</span>
       </div>
       <div class="checklist">
         <label class="checkline"><input type="checkbox"> Ho organizzato bene l’introduzione.</label>
@@ -649,6 +946,8 @@ function renderSpeaking(item){
 function bindObjectiveOptions(item, after){
   document.querySelectorAll('.option').forEach(btn => {
     btn.addEventListener('click', () => {
+      if(document.querySelector('.option.locked')) return;
+      btn.classList.add('selected');
       const chosen = Number(btn.dataset.answer);
       const correct = chosen === item.answer;
       document.querySelectorAll('.option').forEach((b,idx) => {
@@ -667,7 +966,8 @@ function bindObjectiveOptions(item, after){
           correct ? 'Risposta corretta' : 'Risposta da rivedere',
           item.explanation || 'Controlla meglio il rapporto tra consegna e opzioni.',
           item.tip || 'Rileggi la domanda con attenzione e cerca i dettagli che guidano la scelta.',
-          after
+          after,
+          correct
         );
       } else {
         setTimeout(after, 420);
@@ -680,6 +980,9 @@ function completeSection(){
   stopSpeech();
   stopTimer();
   const currentKey = state.sectionKey;
+  if(state.results[currentKey]){
+    state.results[currentKey].secondsUsed = Math.round((Date.now() - (state.sectionStartTs || Date.now())) / 1000);
+  }
   state.sectionIndex++;
   if(state.sectionIndex < state.sectionsQueue.length) {
     const nextKey = state.sectionsQueue[state.sectionIndex];
@@ -691,10 +994,10 @@ function completeSection(){
   }
 }
 
+
 function renderResults(){
   showScreen('results');
   const objectivePerfect = state.answeredObjective > 0 && state.correctObjective === state.answeredObjective;
-  const practiceNonObjectiveDone = (state.results.writing?.completed || 0) + (state.results.speaking?.completed || 0);
   const allCompletedNonObjective = Object.entries(state.results)
     .filter(([k,v]) => !v.objective)
     .every(([k,v]) => v.completed === v.total);
@@ -705,25 +1008,100 @@ function renderResults(){
     : `<h2 style="margin:0 0 8px">Completato</h2><div>Hai concluso il percorso. Ora puoi ripetere il set oppure generarne uno nuovo.</div>`;
 
   const entries = Object.entries(state.results);
-  el.resultScores.innerHTML = entries.map(([key,res]) => {
-    const value = res.objective ? `${res.correct} / ${res.answered || res.total}` : `${res.completed} / ${res.total}`;
-    const note = res.objective ? 'Risposte corrette' : 'Tracce completate';
-    return `<div class="score-box"><div>${res.title}</div><div class="big">${value}</div><div class="mini">${note}</div></div>`;
-  }).join('');
-  el.resultNotes.innerHTML = `
-    <strong>Totale parti oggettive:</strong> ${state.correctObjective} risposte corrette su ${state.answeredObjective}. <br>
-    <strong>Consiglio:</strong> usa la modalità pratica per generare nuovi set casuali sulle sezioni in cui senti più incertezza.
+  const totalSections = entries.length;
+  const completedSections = entries.filter(([key,res]) => res.objective ? (res.answered === res.total) : (res.completed === res.total)).length;
+  const objectiveRate = state.answeredObjective ? Math.round((state.correctObjective / state.answeredObjective) * 100) : 0;
+  const openCompleted = entries.filter(([key,res]) => !res.objective).reduce((sum,[k,res]) => sum + res.completed, 0);
+  const openTotal = entries.filter(([key,res]) => !res.objective).reduce((sum,[k,res]) => sum + res.total, 0);
+  const totalSeconds = Math.round((Date.now() - (state.runStartTs || Date.now())) / 1000);
+  const totalAnswered = entries.reduce((sum,[key,res]) => sum + (res.objective ? (res.answered || 0) : (res.completed || 0)), 0);
+
+  const sectionPcts = entries.map(([key,res]) => {
+    const pct = res.objective ? Math.round(((res.correct || 0) / (res.total || 1)) * 100) : Math.round(((res.completed || 0) / (res.total || 1)) * 100);
+    return {key, title:res.title, pct, objective:!!res.objective};
+  });
+  const weakest = [...sectionPcts].sort((a,b) => a.pct - b.pct)[0];
+  const strongest = [...sectionPcts].sort((a,b) => b.pct - a.pct)[0];
+  const averagePct = sectionPcts.length ? Math.round(sectionPcts.reduce((s,x)=>s+x.pct,0) / sectionPcts.length) : 0;
+
+  el.resultOverview.innerHTML = `
+    <div class="overview-box">
+      <div class="label">Esito</div>
+      <div class="value">${perfect ? 'Perfetto' : 'Completato'}</div>
+      <div class="sub">${perfect ? 'Hai chiuso il set con un rendimento impeccabile.' : 'Hai terminato la simulazione e puoi analizzare le aree da rinforzare.'}</div>
+    </div>
+    <div class="overview-box">
+      <div class="label">Sezioni concluse</div>
+      <div class="value">${completedSections} / ${totalSections}</div>
+      <div class="sub">Tutte le sezioni previste nel set corrente sono state attraversate.</div>
+    </div>
+    <div class="overview-box">
+      <div class="label">Accuratezza oggettiva</div>
+      <div class="value">${objectiveRate}%</div>
+      <div class="sub">${state.correctObjective} risposte corrette su ${state.answeredObjective} nelle parti con correzione immediata.</div>
+    </div>
+    <div class="overview-box">
+      <div class="label">Tracce aperte</div>
+      <div class="value">${openCompleted} / ${openTotal || 0}</div>
+      <div class="sub">Produzione scritta e orale completate nel set selezionato.</div>
+    </div>
   `;
+
+  el.resultMetaStrip.innerHTML = `
+    <div class="result-meta"><div class="label">Tempo totale</div><div class="value">${fmtTime(totalSeconds)}</div><div class="mini">Durata effettiva del tentativo</div></div>
+    <div class="result-meta"><div class="label">Media sezioni</div><div class="value">${averagePct}%</div><div class="mini">Rendimento medio complessivo</div></div>
+    <div class="result-meta"><div class="label">Attività completate</div><div class="value">${totalAnswered}</div><div class="mini">Tra risposte oggettive e tracce aperte</div></div>
+    <div class="result-meta"><div class="label">Modalità</div><div class="value">${state.mode === 'full' ? 'Esame' : 'Pratica'}</div><div class="mini">${state.mode === 'full' ? 'Set completo casuale' : 'Sezione mirata randomizzata'}</div></div>
+  `;
+
+  el.resultScores.innerHTML = entries.map(([key,res]) => {
+    const done = res.objective ? (res.answered || res.total) : (res.completed || 0);
+    const success = res.objective ? (res.correct || 0) : (res.completed || 0);
+    const total = res.total || 1;
+    const pct = Math.round((success / total) * 100);
+    const value = res.objective ? `${res.correct} / ${done}` : `${res.completed} / ${res.total}`;
+    const note = res.objective ? 'Risposte corrette' : 'Tracce completate';
+    const status = pct === 100 ? 'Ottimo' : pct >= 70 ? 'Buono' : pct >= 40 ? 'Da rinforzare' : 'Priorità';
+    return `<div class="score-box">
+      <div class="row"><div><strong>${res.title}</strong><div class="mini">${note} · ${fmtTime(res.secondsUsed || 0)}</div></div><span class="pill">${status}</span></div>
+      <div class="big">${value}</div>
+      <div class="score-bar"><span style="width:${pct}%"></span></div>
+      <div class="mini">${pct}% completato / corretto</div>
+    </div>`;
+  }).join('');
+
+  el.resultInsights.innerHTML = `
+    <div class="insight-item"><span class="result-note-strong">Punto più forte:</span> ${strongest ? `${strongest.title} (${strongest.pct}%).` : '—'}</div>
+    <div class="insight-item"><span class="result-note-strong">Area da curare:</span> ${weakest ? `${weakest.title} (${weakest.pct}%). Genera un nuovo set casuale in pratica per consolidarla.` : '—'}</div>
+    <div class="insight-item"><span class="result-note-strong">Strategia consigliata:</span> alterna una simulazione completa a sessioni brevi di pratica mirata sulle sezioni con punteggio più basso.</div>
+  `;
+
+  el.resultNotes.innerHTML = `
+    <strong>Totale parti oggettive:</strong> ${state.correctObjective} risposte corrette su ${state.answeredObjective}.<br>
+    <strong>Prossimo passo:</strong> ${perfect ? 'mantieni il ritmo con un nuovo set casuale completo per verificare la costanza del rendimento.' : 'usa la modalità pratica per rigenerare contenuti nelle sezioni più deboli e poi riprova una simulazione completa.'}
+  `;
+
+  saveAttempt({
+    label: perfect ? 'Perfetto' : 'Completato',
+    date: new Date().toLocaleString('it-IT'),
+    modeLabel: state.mode === 'full' ? 'Simulazione completa' : `Pratica · ${CONFIG[state.lastRun?.sectionKey || state.sectionKey]?.title || 'Sezione'}`,
+    primary: `${averagePct}% medio`,
+    secondary: `${state.correctObjective}/${state.answeredObjective} oggettive · ${fmtTime(totalSeconds)}`
+  });
+  renderHistory();
   el.heroBar.style.width = '100%';
 }
-
 function speakText(text){
   stopSpeech();
   if(!('speechSynthesis' in window)) return;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'it-IT';
-  utter.rate = 0.96;
+  utter.rate = state.audioRate || 0.96;
   utter.pitch = 1;
+  utter.onend = () => {
+    const status = document.getElementById('listen-status');
+    if(status) status.textContent = 'Riproduzione completata.';
+  };
   state.audioUtterance = utter;
   speechSynthesis.speak(utter);
 }
@@ -731,6 +1109,18 @@ function speakText(text){
 function stopSpeech(){
   if('speechSynthesis' in window) speechSynthesis.cancel();
   state.audioUtterance = null;
+}
+
+
+function newRandomSet(){
+  stopSpeech();
+  stopTimer();
+  if(!state.lastRun) return goHome();
+  if(state.lastRun.mode === 'full') {
+    buildFullRun();
+  } else {
+    buildPracticeRun(state.lastRun.sectionKey, state.lastRun.countValue);
+  }
 }
 
 function goHome(){
@@ -755,6 +1145,7 @@ document.addEventListener('click', (e) => {
   if(action === 'go-home') goHome();
   if(action === 'start-full') buildFullRun();
   if(action === 'restart-current') restartCurrent();
+  if(action === 'new-random-set') newRandomSet();
 
   const practiceCard = e.target.closest('[data-practice-section]');
   if(practiceCard) openPicker(practiceCard.dataset.practiceSection);
@@ -771,7 +1162,9 @@ el.backBtn.addEventListener('click', () => {
   stopSpeech();
 });
 
+loadPersistedState();
 renderPracticeGrid();
+renderHistory();
 showScreen('landing');
 </script>
 </body>

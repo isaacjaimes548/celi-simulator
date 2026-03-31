@@ -40,7 +40,11 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:12px}
 .intro h2{margin:0 0 8px;font-size:1.6rem}
 .intro p{margin:0;color:var(--muted);line-height:1.65}
 #practice-screen .intro{margin-bottom:36px}
-#practice-grid{margin-top:6px}
+#practice-grid{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,280px));justify-content:center;gap:22px;align-items:stretch}
+#practice-grid .card{min-height:318px;display:flex;flex-direction:column;justify-content:flex-start}
+#practice-grid .card h3{min-height:72px;display:flex;align-items:flex-start}
+#practice-grid .card p{min-height:84px}
+#practice-grid .features{margin-top:auto}
 .dual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .card{padding:24px;cursor:pointer;transition:transform .14s ease}
 .card .pill,.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#edf2ff;color:#355cc8;font-size:.8rem;font-weight:800;margin-bottom:12px}
@@ -92,6 +96,7 @@ textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:
 .footer-note{margin-top:18px;color:var(--muted);font-size:.93rem;line-height:1.6}
 @media (max-width: 860px){
   .dual-grid,.layout-2,.stat-row{grid-template-columns:1fr}
+  #practice-grid{grid-template-columns:1fr}
   .page,.hero{padding:18px}
   body{padding:8px}
 }

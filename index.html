@@ -72,6 +72,8 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2));padding:12px}
 .card p,.sub,.mini{margin:0;color:var(--muted);line-height:1.55}
 .features{margin-top:16px;display:grid;gap:8px;color:#38517b;font-weight:700;font-size:.95rem}
 .top-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.bottom-actions{display:flex;justify-content:flex-end;margin-top:18px}
+.bottom-actions .btn{min-width:150px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
 
 .exam-shell{display:grid;gap:18px}
@@ -361,6 +363,9 @@ textarea{width:100%;min-height:230px;border:1px solid var(--line);border-radius:
           </div>
         </div>
         <div id="exam-content" class="exam-stage"></div>
+        <div class="bottom-actions">
+          <button class="btn hidden" id="next-btn-bottom">Avanti →</button>
+        </div>
       </div>
     </section>
 
@@ -467,6 +472,7 @@ const el = {
   practiceGrid: document.getElementById('practice-grid'),
   examContent: document.getElementById('exam-content'),
   nextBtn: document.getElementById('next-btn'),
+  nextBtnBottom: document.getElementById('next-btn-bottom'),
   backBtn: document.getElementById('back-context-btn'),
   statSection: document.getElementById('stat-section'),
   statTimer: document.getElementById('stat-timer'),
@@ -749,26 +755,38 @@ function hideFeedback(){
   if(typeof fn === 'function') fn();
 }
 
+
+function showAdvanceButtons(label='Avanti →'){
+  el.nextBtn.textContent = label;
+  el.nextBtnBottom.textContent = label;
+  el.nextBtn.classList.remove('hidden');
+  el.nextBtnBottom.classList.remove('hidden');
+}
+function hideAdvanceButtons(){
+  hideAdvanceButtons();
+  el.nextBtnBottom.classList.add('hidden');
+}
 el.modalNext.addEventListener('click', hideFeedback);
 el.modalRepeat.addEventListener('click', () => {
   el.modal.classList.add('hidden');
   if(typeof state.pendingAdvance === 'function'){
-    el.nextBtn.textContent = 'Avanti →';
-    el.nextBtn.classList.remove('hidden');
+    showAdvanceButtons('Avanti →');
   }
 });
-el.nextBtn.addEventListener('click', () => {
+function handleAdvanceClick(){
   const fn = state.pendingAdvance;
   if(typeof fn === 'function'){
-    el.nextBtn.classList.add('hidden');
+    hideAdvanceButtons();
     state.pendingAdvance = null;
     fn();
   }
-});
+}
+el.nextBtn.addEventListener('click', handleAdvanceClick);
+el.nextBtnBottom.addEventListener('click', handleAdvanceClick);
 
 function renderCurrentItem(){
   updateStats();
-  el.nextBtn.classList.add('hidden');
+  hideAdvanceButtons();
   const item = state.sectionItems[state.itemIndex];
   const sectionKey = state.sectionKey;
   if(!item) {
@@ -925,6 +943,111 @@ function renderListening(item){
 }
 
 
+function countWords(text){
+  const clean = (text || '').trim();
+  return clean ? clean.split(/\s+/).length : 0;
+}
+
+function extractPromptKeywords(prompt){
+  const stop = new Set(['scrivi','scrivere','breve','testo','email','formale','informale','messaggio','dettagliato','racconta','spiega','proponi','articolo','lettera','centro','corso','lingua','linguistico','italiano','tua','tuo','della','delle','degli','dello','sulla','sulle','nella','nelle','nello','anche','dove','come','cosa','quale','quali','potrebbe','recentemente','locale','locali','straniera','modo','chiaro']);
+  return Array.from(new Set((prompt.toLowerCase().match(/[a-zàèéìòóù]+/g) || [])
+    .filter(w => w.length >= 5 && !stop.has(w)))).slice(0,8);
+}
+
+function evaluateOpenResponse(text, prompt, mode='writing'){
+  const raw = text || '';
+  const normalized = raw.toLowerCase();
+  const words = countWords(raw);
+  const connectors = ['perché','perche','quindi','inoltre','invece','tuttavia','infatti','prima','poi','infine','da una parte','dall’altra','dall'altra','per esempio','ad esempio','in conclusione','secondo me','ritengo che','da un lato'];
+  const connectorHits = connectors.filter(c => normalized.includes(c)).length;
+  const paragraphs = raw.split(/
+\s*
+|
+/).map(x => x.trim()).filter(Boolean).length;
+  const sentences = raw.split(/[.!?]+/).map(x => x.trim()).filter(Boolean).length;
+  const punctuation = (raw.match(/[,.!?;:]/g) || []).length;
+  const tokens = normalized.match(/[a-zàèéìòóù]+/g) || [];
+  const uniqueRatio = tokens.length ? (new Set(tokens)).size / tokens.length : 0;
+  const promptKeywords = extractPromptKeywords(prompt);
+  const keywordHits = promptKeywords.filter(k => normalized.includes(k)).length;
+
+  let score = 0;
+  const strengths = [];
+  const improve = [];
+
+  const targetMin = mode === 'writing' ? 90 : 45;
+  const targetGood = mode === 'writing' ? 130 : 80;
+  if(words >= targetGood){
+    score += 24;
+    strengths.push('La risposta ha una lunghezza adeguata per sviluppare le idee.');
+  } else if(words >= targetMin){
+    score += 18;
+    strengths.push('La lunghezza è sufficiente, ma puoi ampliare un po’ lo sviluppo.');
+  } else {
+    score += Math.max(4, Math.round((words / targetMin) * 14));
+    improve.push(mode === 'writing' ? 'Allunga il testo: per un livello B2 serve più sviluppo.' : 'Parla un po’ di più per dare una risposta B2 più piena.');
+  }
+
+  if(connectorHits >= 3){
+    score += 16;
+    strengths.push('Usi diversi connettori per collegare le idee.');
+  } else if(connectorHits >= 1){
+    score += 10;
+    improve.push('Aggiungi più connettori come inoltre, tuttavia, quindi, infine.');
+  } else {
+    score += 3;
+    improve.push('La risposta sembra poco collegata: usa connettori logici.');
+  }
+
+  if(keywordHits >= Math.min(3, Math.max(1, promptKeywords.length))){
+    score += 18;
+    strengths.push('La risposta resta vicina alla traccia proposta.');
+  } else if(keywordHits >= 1){
+    score += 10;
+    improve.push('Riprendi più chiaramente gli elementi centrali della consegna.');
+  } else {
+    score += 2;
+    improve.push('Il testo sembra poco ancorato alla traccia: richiama i temi chiave del prompt.');
+  }
+
+  if(sentences >= (mode === 'writing' ? 5 : 3)){
+    score += 14;
+    strengths.push('La risposta ha una struttura abbastanza articolata.');
+  } else {
+    score += 6;
+    improve.push('Sviluppa meglio la struttura: introduzione, sviluppo e chiusura.');
+  }
+
+  if(paragraphs >= (mode === 'writing' ? 2 : 1)){
+    score += 8;
+  } else if(mode === 'writing') {
+    improve.push('Prova a dividere il testo in paragrafi per renderlo più chiaro.');
+  }
+
+  if(punctuation >= Math.max(3, Math.floor(words / 18))){
+    score += 8;
+  } else {
+    improve.push('Usa meglio punteggiatura e pause per rendere il testo più leggibile.');
+  }
+
+  if(uniqueRatio >= 0.62){
+    score += 12;
+    strengths.push('Il lessico appare abbastanza vario.');
+  } else if(uniqueRatio >= 0.5){
+    score += 8;
+  } else {
+    score += 4;
+    improve.push('Prova a variare un po’ di più il lessico evitando troppe ripetizioni.');
+  }
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  const level = score >= 85 ? 'Molto solido' : score >= 70 ? 'Buono' : score >= 55 ? 'In sviluppo' : 'Da rinforzare';
+  if(!strengths.length) strengths.push('Hai completato la traccia: ora punta a renderla più ricca e precisa.');
+  if(!improve.length) improve.push('Ottimo lavoro: nella prossima prova prova a rendere il registro ancora più naturale.');
+
+  return {score, level, words, connectorHits, keywordHits, strengths: strengths.slice(0,3), improve: improve.slice(0,3)};
+}
+
 
 function renderWriting(item){
   const draftKey = `writing_${item.prompt}`;
@@ -1003,6 +1126,12 @@ function renderWriting(item){
 function renderSpeaking(item){
   state.speakingPrepared = false;
   state.speakingStarted = false;
+  let latestSpeechEval = null;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const speechSupported = !!SpeechRecognition;
+  let recognition = null;
+  let transcriptText = '';
+
   el.examContent.innerHTML = `
     <article class="oral-card">
       <span class="tag">Prompt orale casuale</span>
@@ -1013,35 +1142,106 @@ function renderSpeaking(item){
         <span class="tag">Risposta: 1–2 min</span>
         <span class="warning-chip">Parla in modo chiaro e sviluppa almeno due idee</span>
       </div>
-      <div class="top-actions" style="margin-top:10px">
+      <div class="top-actions" style="margin-top:10px;flex-wrap:wrap">
         <button class="btn secondary" id="start-prep-btn">Avvia preparazione</button>
         <button class="btn secondary" id="start-speaking-btn" disabled>Avvia risposta</button>
+        <button class="btn secondary" id="start-dictation-btn" disabled>Detta con microfono</button>
+        <button class="btn secondary" id="stop-dictation-btn" disabled>Ferma dettatura</button>
       </div>
-      <div id="speaking-status" class="listen-status">Inizia con la fase di preparazione, poi passa alla risposta orale.</div>
+      <div id="speaking-status" class="listen-status">Inizia con la preparazione, poi avvia la risposta. Puoi dettare dal telefono o scrivere manualmente la trascrizione.</div>
+      <textarea id="speech-transcript" placeholder="La tua trascrizione apparirà qui. Se il browser non supporta il microfono, puoi scrivere manualmente."></textarea>
       <div class="checklist">
         <label class="checkline"><input type="checkbox"> Ho organizzato bene l’introduzione.</label>
         <label class="checkline"><input type="checkbox"> Ho dato almeno due idee sviluppate.</label>
         <label class="checkline"><input type="checkbox"> Ho parlato con fluidità sufficiente.</label>
       </div>
-      <div class="top-actions" style="margin-top:18px">
+      <div class="top-actions" style="margin-top:18px;flex-wrap:wrap">
+        <button class="btn secondary" id="evaluate-speaking-btn">Valuta risposta orale</button>
         <button class="btn" id="complete-speaking-btn" disabled>Completa prompt</button>
       </div>
-      <div id="speaking-warning" class="listen-status" style="display:none;margin-top:12px">Prima completa la fase di preparazione/risposta e conferma almeno 2 indicatori di autovalutazione.</div>
+      <div id="speaking-warning" class="listen-status" style="display:none;margin-top:12px">Prima completa preparazione/risposta, inserisci una trascrizione utile, conferma la checklist e usa “Valuta risposta orale”.</div>
+      <div id="speech-support-note" class="mini" style="margin-top:10px">${speechSupported ? 'Il tuo browser supporta il dettato vocale locale in italiano.' : 'Dettatura non disponibile in questo browser: usa la trascrizione manuale o la tastiera vocale del telefono.'}</div>
+      <div id="speaking-feedback" class="eval-box" style="display:none;margin-top:16px"></div>
     </article>
   `;
+
   const prepBtn = document.getElementById('start-prep-btn');
   const startBtn = document.getElementById('start-speaking-btn');
+  const dictBtn = document.getElementById('start-dictation-btn');
+  const stopDictBtn = document.getElementById('stop-dictation-btn');
+  const transcript = document.getElementById('speech-transcript');
+  const evaluateBtn = document.getElementById('evaluate-speaking-btn');
   const completeBtn = document.getElementById('complete-speaking-btn');
   const status = document.getElementById('speaking-status');
   const warning = document.getElementById('speaking-warning');
+  const feedback = document.getElementById('speaking-feedback');
   const checks = Array.from(document.querySelectorAll('.checklist input[type="checkbox"]'));
 
-  const syncSpeakingButton = () => {
+  const canEvaluate = () => {
     const checked = checks.filter(c => c.checked).length;
-    const canComplete = state.speakingStarted && checked >= 2;
-    completeBtn.disabled = !canComplete;
-    if(canComplete) warning.style.display = 'none';
+    return state.speakingStarted && countWords(transcript.value) >= 30 && checked >= 2;
   };
+  const renderEval = (result) => {
+    feedback.style.display = 'block';
+    feedback.innerHTML = `
+      <div class="eval-head">
+        <div>
+          <div class="label">Feedback locale</div>
+          <div class="eval-score">${result.score}/100 · ${result.level}</div>
+        </div>
+        <div class="tag">${result.words} parole</div>
+      </div>
+      <div class="eval-grid">
+        <div class="eval-panel good">
+          <strong>Punti forti</strong>
+          <ul>${result.strengths.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="eval-panel warn">
+          <strong>Da migliorare</strong>
+          <ul>${result.improve.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="mini" style="margin-top:10px">Valutazione basata sulla trascrizione locale: utile per struttura, chiarezza e copertura della traccia, non per pronuncia o intonazione reali.</div>
+    `;
+  };
+  const syncSpeakingButton = () => {
+    if(latestSpeechEval && canEvaluate()){
+      completeBtn.disabled = false;
+      warning.style.display = 'none';
+    } else {
+      completeBtn.disabled = true;
+    }
+  };
+
+  if(speechSupported){
+    recognition = new SpeechRecognition();
+    recognition.lang = 'it-IT';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      let finalText = transcriptText;
+      let interim = '';
+      for(let i = event.resultIndex; i < event.results.length; i++){
+        const part = event.results[i][0].transcript;
+        if(event.results[i].isFinal) finalText += part + ' ';
+        else interim += part;
+      }
+      transcript.value = (finalText + interim).trim();
+      latestSpeechEval = null;
+      feedback.style.display = 'none';
+      syncSpeakingButton();
+    };
+    recognition.onerror = () => {
+      status.textContent = 'Dettatura non disponibile in questo momento. Puoi scrivere manualmente la trascrizione.';
+      dictBtn.disabled = false;
+      stopDictBtn.disabled = true;
+    };
+    recognition.onend = () => {
+      transcriptText = transcript.value.trim() + ' ';
+      dictBtn.disabled = !state.speakingStarted;
+      stopDictBtn.disabled = true;
+    };
+  }
 
   prepBtn.addEventListener('click', () => {
     state.speakingPrepared = true;
@@ -1053,18 +1253,55 @@ function renderSpeaking(item){
   startBtn.addEventListener('click', () => {
     if(!state.speakingPrepared) return;
     state.speakingStarted = true;
-    status.textContent = 'Risposta orale avviata. Parla per 1–2 minuti e poi completa la checklist di autovalutazione.';
+    dictBtn.disabled = !speechSupported;
+    status.textContent = 'Risposta orale avviata. Parla per 1–2 minuti; puoi dettare con il microfono o scrivere la trascrizione e poi valutarla.';
     syncSpeakingButton();
   });
 
-  checks.forEach(c => c.addEventListener('change', syncSpeakingButton));
+  dictBtn.addEventListener('click', () => {
+    if(!recognition || !state.speakingStarted) return;
+    recognition.start();
+    dictBtn.disabled = true;
+    stopDictBtn.disabled = false;
+    status.textContent = 'Dettatura attiva. Continua a parlare con chiarezza.';
+  });
+
+  stopDictBtn.addEventListener('click', () => {
+    if(recognition) recognition.stop();
+    status.textContent = 'Dettatura fermata. Ora puoi rivedere la trascrizione e valutarla.';
+  });
+
+  transcript.addEventListener('input', () => {
+    latestSpeechEval = null;
+    feedback.style.display = 'none';
+    syncSpeakingButton();
+  });
+  checks.forEach(c => c.addEventListener('change', () => {
+    latestSpeechEval = null;
+    feedback.style.display = 'none';
+    syncSpeakingButton();
+  }));
+
+  evaluateBtn.addEventListener('click', () => {
+    if(!canEvaluate()){
+      warning.style.display = 'block';
+      return;
+    }
+    latestSpeechEval = evaluateOpenResponse(transcript.value, item.prompt, 'speaking');
+    renderEval(latestSpeechEval);
+    completeBtn.disabled = false;
+    warning.style.display = 'none';
+  });
 
   completeBtn.addEventListener('click', () => {
-    if(completeBtn.disabled){
+    if(!latestSpeechEval){
       warning.style.display = 'block';
       return;
     }
     state.results.speaking.completed++;
+    state.results.speaking.lastScore = latestSpeechEval.score;
+    state.results.speaking.lastLevel = latestSpeechEval.level;
+    if(recognition) recognition.stop();
     state.itemIndex++;
     renderCurrentItem();
   });
